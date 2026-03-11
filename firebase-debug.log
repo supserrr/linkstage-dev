@@ -1,0 +1,150 @@
+[debug] [2026-03-11T12:26:44.999Z] ----------------------------------------------------------------------
+[debug] [2026-03-11T12:26:45.002Z] Command:       /Users/password/.local/share/fnm/node-versions/v20.19.4/installation/bin/node /Users/password/.npm-global/bin/firebase firestore:databases:create \(default\) --location=nam5 --project=linkstage-rw
+[debug] [2026-03-11T12:26:45.002Z] CLI Version:   15.9.0
+[debug] [2026-03-11T12:26:45.002Z] Platform:      darwin
+[debug] [2026-03-11T12:26:45.002Z] Node Version:  v20.19.4
+[debug] [2026-03-11T12:26:45.002Z] Time:          Wed Mar 11 2026 14:26:45 GMT+0200 (Central Africa Time)
+[debug] [2026-03-11T12:26:45.002Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-11T12:26:45.470Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[debug] [2026-03-11T12:26:45.473Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-11T12:26:45.473Z] > authorizing via signed-in user (s.shima@alustudent.com)
+[debug] [2026-03-11T12:26:45.473Z] [iam] checking project linkstage-rw for permissions ["datastore.databases.create","firebase.projects.get"]
+[debug] [2026-03-11T12:26:45.474Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:26:45.474Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:26:45.475Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions [none]
+[debug] [2026-03-11T12:26:45.475Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions  x-goog-user-project=linkstage-rw
+[debug] [2026-03-11T12:26:45.475Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions {"permissions":["datastore.databases.create","firebase.projects.get"]}
+[debug] [2026-03-11T12:26:47.344Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions 200
+[debug] [2026-03-11T12:26:47.344Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions {"permissions":["datastore.databases.create","firebase.projects.get"]}
+[debug] [2026-03-11T12:26:47.345Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:26:47.345Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:26:47.345Z] >>> [apiv2][query] POST https://firestore.googleapis.com/v1/projects/linkstage-rw/databases databaseId=%5C%28default%5C%29
+[debug] [2026-03-11T12:26:47.345Z] >>> [apiv2][body] POST https://firestore.googleapis.com/v1/projects/linkstage-rw/databases {"locationId":"nam5","type":"FIRESTORE_NATIVE","databaseEdition":"STANDARD","deleteProtectionState":"DELETE_PROTECTION_DISABLED","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","firestoreDataAccessMode":"DATA_ACCESS_MODE_UNSPECIFIED","mongodbCompatibleDataAccessMode":"DATA_ACCESS_MODE_UNSPECIFIED"}
+[debug] [2026-03-11T12:26:47.960Z] <<< [apiv2][status] POST https://firestore.googleapis.com/v1/projects/linkstage-rw/databases 400
+[debug] [2026-03-11T12:26:47.961Z] <<< [apiv2][body] POST https://firestore.googleapis.com/v1/projects/linkstage-rw/databases {"error":{"code":400,"message":"Database ID '\\(default\\)' is invalid.","status":"INVALID_ARGUMENT"}}
+[debug] [2026-03-11T12:26:52.966Z] Error: Timed out.
+    at Timeout._onTimeout (/Users/password/.npm-global/lib/node_modules/firebase-tools/lib/utils.js:308:49)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-03-11T12:27:21.274Z] ----------------------------------------------------------------------
+[debug] [2026-03-11T12:27:21.276Z] Command:       /Users/password/.local/share/fnm/node-versions/v20.19.4/installation/bin/node /Users/password/.npm-global/bin/firebase firestore:databases:create (default) --location=nam5 --project=linkstage-rw
+[debug] [2026-03-11T12:27:21.276Z] CLI Version:   15.9.0
+[debug] [2026-03-11T12:27:21.276Z] Platform:      darwin
+[debug] [2026-03-11T12:27:21.276Z] Node Version:  v20.19.4
+[debug] [2026-03-11T12:27:21.276Z] Time:          Wed Mar 11 2026 14:27:21 GMT+0200 (Central Africa Time)
+[debug] [2026-03-11T12:27:21.276Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-11T12:27:22.064Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[debug] [2026-03-11T12:27:22.066Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-11T12:27:22.067Z] > authorizing via signed-in user (s.shima@alustudent.com)
+[debug] [2026-03-11T12:27:22.067Z] [iam] checking project linkstage-rw for permissions ["datastore.databases.create","firebase.projects.get"]
+[debug] [2026-03-11T12:27:22.067Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:27:22.068Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:27:22.068Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions [none]
+[debug] [2026-03-11T12:27:22.068Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions  x-goog-user-project=linkstage-rw
+[debug] [2026-03-11T12:27:22.068Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions {"permissions":["datastore.databases.create","firebase.projects.get"]}
+[debug] [2026-03-11T12:27:24.201Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions 200
+[debug] [2026-03-11T12:27:24.201Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions {"permissions":["datastore.databases.create","firebase.projects.get"]}
+[debug] [2026-03-11T12:27:24.201Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:27:24.201Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:27:24.202Z] >>> [apiv2][query] POST https://firestore.googleapis.com/v1/projects/linkstage-rw/databases databaseId=%28default%29
+[debug] [2026-03-11T12:27:24.202Z] >>> [apiv2][body] POST https://firestore.googleapis.com/v1/projects/linkstage-rw/databases {"locationId":"nam5","type":"FIRESTORE_NATIVE","databaseEdition":"STANDARD","deleteProtectionState":"DELETE_PROTECTION_DISABLED","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","firestoreDataAccessMode":"DATA_ACCESS_MODE_UNSPECIFIED","mongodbCompatibleDataAccessMode":"DATA_ACCESS_MODE_UNSPECIFIED"}
+[debug] [2026-03-11T12:27:28.557Z] <<< [apiv2][status] POST https://firestore.googleapis.com/v1/projects/linkstage-rw/databases 200
+[debug] [2026-03-11T12:27:28.557Z] <<< [apiv2][body] POST https://firestore.googleapis.com/v1/projects/linkstage-rw/databases {"name":"projects/linkstage-rw/databases/(default)/operations/azcGMYO6cIDKQXROD-SprBAqNW1hbgQiBRAC2NqQ6BAGzcW_sAgMCiga","metadata":{"@type":"type.googleapis.com/google.firestore.admin.v1.CreateDatabaseMetadata"},"response":{"@type":"type.googleapis.com/google.firestore.admin.v1.Database","name":"projects/linkstage-rw/databases/(default)","uid":"aca9e40f-4e74-41ca-8070-ba833106376b","createTime":"2026-03-11T12:27:28.722897Z","updateTime":"2026-03-11T12:27:28.722897Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-03-11T12:27:28.722897Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IKiB+5Lsl5MDMNGn+ZLsl5MD"}}
+[debug] [2026-03-11T12:27:28.558Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:27:28.558Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:27:28.558Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/linkstage-rw/databases/(default)/operations/azcGMYO6cIDKQXROD-SprBAqNW1hbgQiBRAC2NqQ6BAGzcW_sAgMCiga [none]
+[debug] [2026-03-11T12:27:30.734Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/linkstage-rw/databases/(default)/operations/azcGMYO6cIDKQXROD-SprBAqNW1hbgQiBRAC2NqQ6BAGzcW_sAgMCiga 200
+[debug] [2026-03-11T12:27:30.735Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/linkstage-rw/databases/(default)/operations/azcGMYO6cIDKQXROD-SprBAqNW1hbgQiBRAC2NqQ6BAGzcW_sAgMCiga {"name":"projects/linkstage-rw/databases/(default)/operations/azcGMYO6cIDKQXROD-SprBAqNW1hbgQiBRAC2NqQ6BAGzcW_sAgMCiga","metadata":{"@type":"type.googleapis.com/google.firestore.admin.v1.CreateDatabaseMetadata"},"done":true,"response":{"@type":"type.googleapis.com/google.firestore.admin.v1.Database","name":"projects/linkstage-rw/databases/(default)","uid":"aca9e40f-4e74-41ca-8070-ba833106376b","createTime":"2026-03-11T12:27:28.722897Z","updateTime":"2026-03-11T12:27:28.722897Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-03-11T12:27:28.722897Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IJC17pPsl5MDMNGn+ZLsl5MD"}}
+[info] Successfully created projects/linkstage-rw/databases/(default)
+[info] Please be sure to configure Firebase rules in your Firebase config file for
+the new database. By default, created databases will have closed rules that
+block any incoming third-party traffic.
+[info] Your database may be viewed at https://console.firebase.google.com/project/linkstage-rw/firestore/databases/-default-/data
+[debug] [2026-03-11T12:27:40.739Z] Error: Timed out.
+    at Timeout._onTimeout (/Users/password/.npm-global/lib/node_modules/firebase-tools/lib/utils.js:308:49)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-03-11T12:34:47.304Z] ----------------------------------------------------------------------
+[debug] [2026-03-11T12:34:47.306Z] Command:       /Users/password/.local/share/fnm/node-versions/v20.19.4/installation/bin/node /Users/password/.npm-global/bin/firebase deploy --only firestore:rules --project=linkstage-rw
+[debug] [2026-03-11T12:34:47.306Z] CLI Version:   15.9.0
+[debug] [2026-03-11T12:34:47.306Z] Platform:      darwin
+[debug] [2026-03-11T12:34:47.306Z] Node Version:  v20.19.4
+[debug] [2026-03-11T12:34:47.306Z] Time:          Wed Mar 11 2026 14:34:47 GMT+0200 (Central Africa Time)
+[debug] [2026-03-11T12:34:47.306Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-11T12:34:48.216Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[debug] [2026-03-11T12:34:48.218Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-11T12:34:48.218Z] > authorizing via signed-in user (s.shima@alustudent.com)
+[debug] [2026-03-11T12:34:48.218Z] [iam] checking project linkstage-rw for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2026-03-11T12:34:48.219Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:48.219Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:48.219Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions [none]
+[debug] [2026-03-11T12:34:48.220Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions  x-goog-user-project=linkstage-rw
+[debug] [2026-03-11T12:34:48.220Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2026-03-11T12:34:50.077Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions 200
+[debug] [2026-03-11T12:34:50.077Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linkstage-rw:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'linkstage-rw'...
+[info] 
+[info] i  deploying firestore 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[debug] [2026-03-11T12:34:50.081Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:50.081Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:50.081Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/linkstage-rw/databases/(default) [none]
+[debug] [2026-03-11T12:34:52.097Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/linkstage-rw/databases/(default) 200
+[debug] [2026-03-11T12:34:52.097Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/linkstage-rw/databases/(default) {"name":"projects/linkstage-rw/databases/(default)","uid":"aca9e40f-4e74-41ca-8070-ba833106376b","createTime":"2026-03-11T12:27:28.722897Z","updateTime":"2026-03-11T12:27:28.722897Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-03-11T12:27:28.722897Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"INuNtubtl5MDMILqoajsl5MD"}
+[info] i  firestore: reading indexes from firestore.indexes.json... 
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2026-03-11T12:34:52.100Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:52.100Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:52.101Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw:test [none]
+[debug] [2026-03-11T12:34:52.101Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw:test [omitted]
+[debug] [2026-03-11T12:34:53.084Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw:test 200
+[debug] [2026-03-11T12:34:53.084Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw:test {}
+[info] ✔  cloud.firestore: rules file firestore.rules compiled successfully 
+[debug] [2026-03-11T12:34:53.086Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:53.087Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:53.087Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases pageSize=10&pageToken=
+[debug] [2026-03-11T12:34:53.988Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases 200
+[debug] [2026-03-11T12:34:53.988Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases {}
+[info] i  firestore: uploading rules firestore.rules... 
+[debug] [2026-03-11T12:34:53.989Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:53.989Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:53.989Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw/rulesets [none]
+[debug] [2026-03-11T12:34:53.989Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw/rulesets [omitted]
+[debug] [2026-03-11T12:34:54.560Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw/rulesets 200
+[debug] [2026-03-11T12:34:54.560Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw/rulesets {"name":"projects/linkstage-rw/rulesets/6911e46b-6c6e-422d-aed0-331cf1038414","source":{"files":[{"content":"rules_version='2'\n\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      // This rule allows anyone with your database reference to view, edit,\n      // and delete all data in your database. It is useful for getting\n      // started, but it is configured to expire after 30 days because it\n      // leaves your app open to attackers. At that time, all client\n      // requests to your database will be denied.\n      //\n      // Make sure to write security rules for your app before that time, or\n      // else all client requests to your database will be denied until you\n      // update your rules.\n      allow read, write: if request.time < timestamp.date(2026, 4, 10);\n    }\n  }\n}\n","name":"firestore.rules"}]},"createTime":"2026-03-11T12:34:54.673141Z","metadata":{"services":["cloud.firestore"]}}
+[debug] [2026-03-11T12:34:54.560Z] [rules] created ruleset projects/linkstage-rw/rulesets/6911e46b-6c6e-422d-aed0-331cf1038414
+[debug] [2026-03-11T12:34:54.561Z] [rules] releasing cloud.firestore/(default) with ruleset projects/linkstage-rw/rulesets/6911e46b-6c6e-422d-aed0-331cf1038414
+[debug] [2026-03-11T12:34:54.561Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:54.561Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:54.561Z] >>> [apiv2][query] PATCH https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases/cloud.firestore/(default) [none]
+[debug] [2026-03-11T12:34:54.561Z] >>> [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases/cloud.firestore/(default) {"release":{"name":"projects/linkstage-rw/releases/cloud.firestore/(default)","rulesetName":"projects/linkstage-rw/rulesets/6911e46b-6c6e-422d-aed0-331cf1038414"}}
+[debug] [2026-03-11T12:34:54.977Z] <<< [apiv2][status] PATCH https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases/cloud.firestore/(default) 404
+[debug] [2026-03-11T12:34:54.977Z] <<< [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases/cloud.firestore/(default) {"error":{"code":404,"message":"Requested entity was not found.","status":"NOT_FOUND"}}
+[debug] [2026-03-11T12:34:54.978Z] [rules] ruleset update failed, attempting to create instead
+[debug] [2026-03-11T12:34:54.978Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:54.978Z] Checked if tokens are valid: true, expires at: 1773234043192
+[debug] [2026-03-11T12:34:54.978Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases [none]
+[debug] [2026-03-11T12:34:54.978Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases {"name":"projects/linkstage-rw/releases/cloud.firestore/(default)","rulesetName":"projects/linkstage-rw/rulesets/6911e46b-6c6e-422d-aed0-331cf1038414"}
+[debug] [2026-03-11T12:34:56.074Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases 200
+[debug] [2026-03-11T12:34:56.074Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/linkstage-rw/releases {"name":"projects/linkstage-rw/releases/cloud.firestore","rulesetName":"projects/linkstage-rw/rulesets/6911e46b-6c6e-422d-aed0-331cf1038414","createTime":"2026-03-11T12:34:56.147893Z","updateTime":"2026-03-11T12:34:56.147893Z"}
+[debug] [2026-03-11T12:34:56.075Z] [rules] created release projects/linkstage-rw/releases/cloud.firestore
+[info] ✔  firestore: released rules firestore.rules to cloud.firestore 
+[info] 
+[info] ✔  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/linkstage-rw/overview
+[debug] [2026-03-11T12:35:06.084Z] Error: Timed out.
+    at Timeout._onTimeout (/Users/password/.npm-global/lib/node_modules/firebase-tools/lib/utils.js:308:49)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7)
+[error] 
+[error] Error: An unexpected error has occurred.

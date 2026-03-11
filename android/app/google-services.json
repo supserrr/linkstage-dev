@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "776691693274",
+    "project_id": "linkstage-rw",
+    "storage_bucket": "linkstage-rw.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:776691693274:android:fe80b80945e68e7df0d7e3",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoVKNFT8Izo_HMlNw0y6n4SZO9cMEUnfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
