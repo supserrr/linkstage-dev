@@ -98,9 +98,8 @@ class _ProfileSetupFlowPageState extends State<ProfileSetupFlowPage> {
             sl<ProfileSetupDraftStorage>().clearDraft(widget.user.id);
             await sl<OnboardingCubit>().setProfileComplete();
             await sl<AuthRedirectNotifier>().refresh();
-            if (context.mounted) {
-              context.go(AppRoutes.home);
-            }
+            if (!context.mounted) return;
+            context.go(AppRoutes.home);
           }
           if (state.error != null) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -163,7 +162,7 @@ class _ProfileSetupFlowPageState extends State<ProfileSetupFlowPage> {
 
   List<Widget> _buildStepWidgets(BuildContext blocContext) {
     final cubit = blocContext.read<ProfileSetupCubit>();
-    final onNext = () => _next(blocContext);
+    void onNext() => _next(blocContext);
 
     return [
       UsernameStep(onNext: onNext),

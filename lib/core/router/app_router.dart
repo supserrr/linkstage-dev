@@ -16,6 +16,8 @@ import '../../presentation/pages/settings_page.dart';
 import '../../presentation/pages/profile/creative_profile_edit_page.dart';
 import '../../presentation/pages/profile/planner_profile_edit_page.dart';
 import '../../presentation/pages/settings/change_username_page.dart';
+import '../../presentation/pages/settings/change_email_page.dart';
+import '../../presentation/pages/settings/privacy_settings_page.dart';
 import '../../presentation/pages/onboarding/profile_setup_flow_page.dart';
 import '../../presentation/pages/onboarding/onboarding_intro_page.dart';
 import '../../presentation/pages/role_selection_page.dart';
@@ -39,8 +41,9 @@ class AppRoutes {
   static const String messages = '/messages';
   static const String bookings = '/bookings';
   static const String profile = '/profile';
-  static const String settings = '/profile/settings';
-  static const String changeUsername = '/profile/settings/change-username';
+  static const String changeUsername = '/profile/change-username';
+  static const String changeEmail = '/profile/change-email';
+  static const String privacy = '/profile/privacy';
   static const String creativeProfile = '/profile/creative-profile';
   static const String plannerProfile = '/profile/planner-profile';
   static const String myEvents = '/my-events';
@@ -232,17 +235,22 @@ class AppRouter {
                       const NoTransitionPage(child: SettingsPage()),
                   routes: [
                     GoRoute(
-                      path: 'settings',
-                      name: 'settings',
-                      builder: (context, state) => const SettingsPage(),
-                      routes: [
-                        GoRoute(
-                          path: 'change-username',
-                          name: 'changeUsername',
-                          builder: (context, state) =>
-                              const ChangeUsernamePage(),
-                        ),
-                      ],
+                      path: 'change-username',
+                      name: 'changeUsername',
+                      builder: (context, state) =>
+                          const ChangeUsernamePage(),
+                    ),
+                    GoRoute(
+                      path: 'change-email',
+                      name: 'changeEmail',
+                      builder: (context, state) =>
+                          const ChangeEmailPage(),
+                    ),
+                    GoRoute(
+                      path: 'privacy',
+                      name: 'privacy',
+                      builder: (context, state) =>
+                          const PrivacySettingsPage(),
                     ),
                     GoRoute(
                       path: 'creative-profile',

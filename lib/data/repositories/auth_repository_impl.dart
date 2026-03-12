@@ -39,6 +39,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> updateEmail(String newEmail, String currentPassword) {
+    return _remote.updateEmail(newEmail, currentPassword);
+  }
+
+  @override
   Future<void> signOut() {
     return _remote.signOut();
   }

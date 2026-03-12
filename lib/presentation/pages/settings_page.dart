@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,8 +12,7 @@ import '../../core/router/app_router.dart';
 import '../../core/router/auth_redirect.dart';
 import '../../domain/entities/user_entity.dart';
 
-/// Settings page with account badge, account settings, profile management,
-/// app settings, and sign out.
+/// Settings page with View Profile at top, account settings, app settings.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -39,14 +39,15 @@ class _SettingsView extends StatelessWidget {
         builder: (context, state) {
           return ListView(
             children: [
-              _AccountTypeBadge(role: role),
+              _ViewProfileSection(user: user, role: role),
               const Divider(),
               _SectionHeader(title: 'Account Settings'),
               ListTile(
                 leading: const Icon(Icons.email_outlined),
                 title: const Text('Email'),
                 subtitle: Text(user?.email ?? '—'),
-                trailing: const Icon(Icons.chevron_right, color: Colors.transparent),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.changeEmail),
               ),
               ListTile(
                 leading: const Icon(Icons.person_outline),
@@ -60,42 +61,16 @@ class _SettingsView extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.language),
                 title: const Text('Language'),
-                subtitle: Text(
-                  state.language == 'en' ? 'English' : state.language,
-                ),
+                subtitle: Text(_languageLabel(state.language)),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Placeholder: future language picker
-                },
+                onTap: () => _showLanguagePicker(context, state),
               ),
               ListTile(
                 leading: const Icon(Icons.privacy_tip_outlined),
                 title: const Text('Privacy'),
+                subtitle: const Text('Profile visibility, messaging'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Placeholder: future privacy settings
-                },
-              ),
-              const Divider(),
-              _SectionHeader(title: 'Public Profile'),
-              ListTile(
-                leading: const Icon(Icons.badge_outlined),
-                title: const Text('Manage profile'),
-                subtitle: Text(
-                  role == UserRole.creativeProfessional
-                      ? 'Edit portfolio, rates, availability'
-                      : role == UserRole.eventPlanner
-                          ? 'Edit past events, recent creatives'
-                          : 'Set up your profile',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  if (role == UserRole.creativeProfessional) {
-                    context.push(AppRoutes.creativeProfile);
-                  } else if (role == UserRole.eventPlanner) {
-                    context.push(AppRoutes.plannerProfile);
-                  }
-                },
+                onTap: () => context.push(AppRoutes.privacy),
               ),
               const Divider(),
               _SectionHeader(title: 'Premium'),
@@ -119,46 +94,21 @@ class _SettingsView extends StatelessWidget {
               ),
               const Divider(),
               _SectionHeader(title: 'App Settings'),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  'Theme',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: SegmentedButton<ThemeMode>(
+                  segments: const [
+                    ButtonSegment(value: ThemeMode.system, label: Text('System')),
+                    ButtonSegment(value: ThemeMode.light, label: Text('Light')),
+                    ButtonSegment(value: ThemeMode.dark, label: Text('Dark')),
+                  ],
+                  selected: {state.themeMode},
+                  onSelectionChanged: (selection) {
+                    if (selection.isNotEmpty) {
+                      context.read<SettingsCubit>().setThemeMode(selection.first);
+                    }
+                  },
                 ),
-              ),
-              RadioListTile<ThemeMode>(
-                title: const Text('System'),
-                value: ThemeMode.system,
-                groupValue: state.themeMode,
-                onChanged: (v) {
-                  if (v != null) {
-                    context.read<SettingsCubit>().setThemeMode(v);
-                  }
-                },
-              ),
-              RadioListTile<ThemeMode>(
-                title: const Text('Light'),
-                value: ThemeMode.light,
-                groupValue: state.themeMode,
-                onChanged: (v) {
-                  if (v != null) {
-                    context.read<SettingsCubit>().setThemeMode(v);
-                  }
-                },
-              ),
-              RadioListTile<ThemeMode>(
-                title: const Text('Dark'),
-                value: ThemeMode.dark,
-                groupValue: state.themeMode,
-                onChanged: (v) {
-                  if (v != null) {
-                    context.read<SettingsCubit>().setThemeMode(v);
-                  }
-                },
               ),
               SwitchListTile(
                 title: const Text('Notifications'),
@@ -191,47 +141,108 @@ class _SettingsView extends StatelessWidget {
   }
 }
 
-class _AccountTypeBadge extends StatelessWidget {
-  const _AccountTypeBadge({this.role});
+class _ViewProfileSection extends StatelessWidget {
+  const _ViewProfileSection({this.user, this.role});
 
+  final dynamic user;
   final UserRole? role;
 
   @override
   Widget build(BuildContext context) {
-    final label = role == UserRole.creativeProfessional
-        ? 'Creative Professional'
-        : role == UserRole.eventPlanner
-            ? 'Event Planner'
-            : 'Account';
-    final color = role == UserRole.creativeProfessional
-        ? Theme.of(context).colorScheme.primary
-        : role == UserRole.eventPlanner
-            ? Theme.of(context).colorScheme.secondary
-            : Theme.of(context).colorScheme.surfaceContainerHighest;
-
+    final photoUrl = user?.photoUrl as String?;
     return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Chip(
-        avatar: Icon(
-          role == UserRole.creativeProfessional
-              ? Icons.palette_outlined
-              : role == UserRole.eventPlanner
-                  ? Icons.event_available
-                  : Icons.person_outline,
-          color: Colors.white,
-          size: 20,
+      padding: const EdgeInsets.all(20),
+      child: GestureDetector(
+        onTap: () {
+          if (role == UserRole.creativeProfessional) {
+            context.push(AppRoutes.creativeProfile);
+          } else if (role == UserRole.eventPlanner) {
+            context.push(AppRoutes.plannerProfile);
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 56,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
+              backgroundImage: photoUrl != null && photoUrl.isNotEmpty
+                  ? CachedNetworkImageProvider(photoUrl)
+                  : null,
+              child: photoUrl == null || photoUrl.isEmpty
+                  ? Icon(
+                      Icons.person,
+                      size: 56,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )
+                  : null,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'View profile',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ],
         ),
-        label: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: color,
       ),
     );
   }
+}
+
+String _languageLabel(String code) {
+  switch (code) {
+    case 'en':
+      return 'English';
+    case 'fr':
+      return 'Francais';
+    case 'rw':
+      return 'Kinyarwanda';
+    case 'sw':
+      return 'Kiswahili';
+    default:
+      return code;
+  }
+}
+
+void _showLanguagePicker(BuildContext context, SettingsState state) {
+  const languages = [
+    ('en', 'English'),
+    ('fr', 'Francais'),
+    ('rw', 'Kinyarwanda'),
+    ('sw', 'Kiswahili'),
+  ];
+  final cubit = context.read<SettingsCubit>();
+  showModalBottomSheet<void>(
+    context: context,
+    builder: (ctx) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Language',
+              style: Theme.of(ctx).textTheme.titleMedium,
+            ),
+          ),
+          ...languages.map((l) => ListTile(
+                title: Text(l.$2),
+                trailing: state.language == l.$1
+                    ? Icon(Icons.check, color: Theme.of(ctx).colorScheme.primary)
+                    : null,
+                onTap: () {
+                  cubit.setLanguage(l.$1);
+                  Navigator.pop(ctx);
+                },
+              )),
+        ],
+      ),
+    ),
+  );
 }
 
 class _SectionHeader extends StatelessWidget {

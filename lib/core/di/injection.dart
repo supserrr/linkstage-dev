@@ -24,6 +24,7 @@ import '../../domain/usecases/auth/send_password_reset_usecase.dart';
 import '../../domain/usecases/auth/sign_in_with_email_usecase.dart';
 import '../../domain/usecases/auth/sign_in_with_google_usecase.dart';
 import '../../domain/usecases/auth/sign_out_usecase.dart';
+import '../../domain/usecases/auth/update_email_usecase.dart';
 import '../../domain/usecases/user/change_username_usecase.dart';
 import '../../domain/usecases/user/upsert_user_usecase.dart';
 import '../../presentation/bloc/auth/auth_bloc.dart';
@@ -77,6 +78,9 @@ Future<void> initInjection() async {
   sl.registerLazySingleton(() => SignInWithGoogleUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(
     () => SendPasswordResetUseCase(sl<AuthRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => UpdateEmailUseCase(sl<AuthRepository>()),
   );
   sl.registerLazySingleton(() => SignOutUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => UpsertUserUseCase(sl<UserRepository>()));

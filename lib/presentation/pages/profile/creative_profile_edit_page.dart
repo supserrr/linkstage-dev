@@ -111,6 +111,7 @@ class _CreativeProfileView extends StatelessWidget {
               _Section(
                 title: 'Profession',
                 child: DropdownButtonFormField<ProfileCategory?>(
+                  // ignore: deprecated_member_use - value needed for controlled updates
                   value: profile.category,
                   decoration: const InputDecoration(
                     hintText: 'Select profession',
@@ -156,6 +157,7 @@ class _CreativeProfileView extends StatelessWidget {
               _Section(
                 title: 'Availability',
                 child: DropdownButtonFormField<ProfileAvailability?>(
+                  // ignore: deprecated_member_use - value needed for controlled updates
                   value: profile.availability,
                   decoration: const InputDecoration(
                     hintText: 'Select availability',

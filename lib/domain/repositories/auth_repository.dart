@@ -25,6 +25,9 @@ abstract class AuthRepository {
   /// Send password reset email.
   Future<void> sendPasswordResetEmail(String email);
 
+  /// Update email (requires current password for re-auth).
+  Future<void> updateEmail(String newEmail, String currentPassword);
+
   /// Sign out.
   Future<void> signOut();
 }

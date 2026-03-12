@@ -78,6 +78,22 @@ class AuthRemoteDataSource {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
+  Future<void> updateEmail(String newEmail, String currentPassword) async {
+    final user = _auth.currentUser;
+    if (user == null || user.email == null) {
+      throw FirebaseAuthException(
+        code: 'no-user',
+        message: 'You must be signed in to change email',
+      );
+    }
+    final cred = EmailAuthProvider.credential(
+      email: user.email!,
+      password: currentPassword,
+    );
+    await user.reauthenticateWithCredential(cred);
+    await user.verifyBeforeUpdateEmail(newEmail);
+  }
+
   Future<void> signOut() async {
     await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
   }
