@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../bloc/onboarding/profile_setup_cubit.dart';
@@ -37,81 +38,94 @@ class ProfilePhotoStep extends StatelessWidget {
       builder: (context, state) {
         final photoFile = state.photoFile;
 
-        return Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Column(
-                  children: [
-                    Text(
-                      'Add a profile photo',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Optional. Skip for now.',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ],
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Center(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
+                    final asset = isDark
+                        ? 'assets/images/profile_page_illustration_dark.svg'
+                        : 'assets/images/profile_page_illustration_light.svg';
+                    return SvgPicture.asset(
+                      asset,
+                      width: constraints.maxWidth,
+                      fit: BoxFit.contain,
+                    );
+                  },
                 ),
               ),
-              Expanded(
-                child: Center(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => _pickImage(context),
-                      borderRadius: BorderRadius.circular(80),
-                      child: Container(
-                        width: 160,
-                        height: 160,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            width: 2,
+            ),
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Text(
+                      'Add a profile photo',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Center(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _pickImage(context),
+                        borderRadius: BorderRadius.circular(60),
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              width: 2,
+                              color: photoFile != null
+                                  ? Colors.transparent
+                                  : theme.colorScheme.primary,
+                            ),
                             color: photoFile != null
-                                ? Colors.transparent
-                                : theme.colorScheme.primary,
+                                ? null
+                                : theme.colorScheme.primaryContainer,
+                            image: photoFile != null
+                                ? DecorationImage(
+                                    image: FileImage(photoFile),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                           ),
-                          color: photoFile != null
-                              ? null
-                              : theme.colorScheme.primaryContainer,
-                          image: photoFile != null
-                              ? DecorationImage(
-                                  image: FileImage(photoFile),
-                                  fit: BoxFit.cover,
+                          child: photoFile == null
+                              ? Center(
+                                  child: Icon(
+                                    Icons.add_a_photo,
+                                    size: 36,
+                                    color: theme.colorScheme.onPrimaryContainer,
+                                  ),
                                 )
                               : null,
                         ),
-                        child: photoFile == null
-                            ? Center(
-                                child: Icon(
-                                  Icons.add_a_photo,
-                                  size: 48,
-                                  color: theme.colorScheme.onPrimaryContainer,
-                                ),
-                              )
-                            : null,
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  AppButton(
+                    label: 'Next',
+                    onPressed: photoFile != null ? onNext : null,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: onNext,
+                    child: const Text('Skip for now'),
+                  ),
+                ],
               ),
-              AppButton(
-                label: 'Next',
-                onPressed: onNext,
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: onNext,
-                child: const Text('Skip for now'),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );

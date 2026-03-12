@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../bloc/onboarding/profile_setup_cubit.dart';
 import '../../../widgets/atoms/app_button.dart';
@@ -34,58 +35,82 @@ class _DisplayNameStepState extends State<DisplayNameStep> {
     super.dispose();
   }
 
+  void _submit() {
+    context.read<ProfileSetupCubit>().setDisplayName(_controller.text.trim());
+    widget.onNext();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasName = _controller.text.trim().isNotEmpty;
 
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Column(
-              children: [
-                Text(
-                  "What's your name?",
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineLarge,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'It will be shown on your profile and in messages.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge,
-                ),
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Center(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isDark =
+                    Theme.of(context).brightness == Brightness.dark;
+                final asset = isDark
+                    ? 'assets/images/display_name_page_illustration_dark.svg'
+                    : 'assets/images/display_name_page_illustration_light.svg';
+                return SvgPicture.asset(
+                  asset,
+                  width: constraints.maxWidth,
+                  fit: BoxFit.contain,
+                );
+              },
             ),
           ),
-          Expanded(
-            child: Center(
-              child: SizedBox(
-                width: double.infinity,
-                child: AppTextField(
-                  controller: _controller,
-                  label: 'Display name',
-                  onChanged: (v) => context.read<ProfileSetupCubit>().setDisplayName(v),
+        ),
+        SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      "What's your name?",
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'It will be shown on your profile and in messages.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                  ],
                 ),
               ),
-            ),
+              const SizedBox(height: 24),
+              AppTextField(
+                controller: _controller,
+                label: 'Display name',
+                onChanged: (v) {
+                context.read<ProfileSetupCubit>().setDisplayName(v);
+                  setState(() {});
+                },
+              ),
+              const SizedBox(height: 24),
+              AppButton(
+                label: 'Next',
+                onPressed: hasName ? _submit : null,
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: widget.onNext,
+                child: const Text('Skip for now'),
+              ),
+            ],
           ),
-          AppButton(
-            label: 'Next',
-            onPressed: () {
-              context.read<ProfileSetupCubit>().setDisplayName(_controller.text.trim());
-              widget.onNext();
-            },
-          ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: widget.onNext,
-            child: const Text('Skip'),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

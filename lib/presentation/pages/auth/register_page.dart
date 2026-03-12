@@ -67,7 +67,7 @@ class _RegisterViewState extends State<_RegisterView> {
           children: [
             Expanded(
               child: Center(
-                child: AuthSignIllustration(height: 200),
+                child: AuthSignIllustration(),
               ),
             ),
             SingleChildScrollView(

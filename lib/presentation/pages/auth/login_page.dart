@@ -60,7 +60,7 @@ class _LoginViewState extends State<_LoginView> {
             Expanded(
               child: SizedBox.expand(
                 child: Center(
-                  child: AuthSignIllustration(height: 200),
+                  child: AuthSignIllustration(),
                 ),
               ),
             ),

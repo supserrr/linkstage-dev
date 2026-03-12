@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../bloc/role_selection/role_selection_cubit.dart';
@@ -9,7 +10,6 @@ import '../../core/router/app_router.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/user/upsert_user_usecase.dart';
 import '../widgets/atoms/app_button.dart';
-import '../widgets/atoms/app_logo.dart';
 
 /// Role selection after registration (Event Planner vs Creative Professional).
 class RoleSelectionPage extends StatelessWidget {
@@ -70,28 +70,42 @@ class _RoleSelectionViewState extends State<_RoleSelectionView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppLogo(height: 96),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Choose your role below',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
+              flex: 2,
+              child: Transform.translate(
+                offset: const Offset(0, -16),
+                child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  final asset = isDark
+                      ? 'assets/images/role_page_illustration_dark.svg'
+                      : 'assets/images/role_page_illustration_light.svg';
+                  return SizedBox(
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    child: SvgPicture.asset(
+                      asset,
+                      width: constraints.maxWidth,
+                      fit: BoxFit.contain,
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
+            ),
             Expanded(
+              flex: 1,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 32),
+                    Text(
+                      'Choose your role below',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
                     _RoleCard(
                       title: 'Event Planner',
                       isSelected: _selectedRole == UserRole.eventPlanner,
@@ -141,6 +155,8 @@ class _RoleCard extends StatelessWidget {
     this.isSelected = false,
   });
 
+  static const _highlightColor = Color(0xFFFE5924);
+
   final String title;
   final VoidCallback onTap;
   final bool isSelected;
@@ -149,31 +165,32 @@ class _RoleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final backgroundColor =
-        isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest;
+        isSelected ? _highlightColor : colorScheme.surfaceContainerHighest;
     final foregroundColor =
-        isSelected ? colorScheme.onPrimary : colorScheme.onSurface;
+        isSelected ? Colors.white : colorScheme.onSurface;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
+              color: isSelected ? _highlightColor : colorScheme.outlineVariant,
               width: isSelected ? 2 : 1,
             ),
           ),
           child: Center(
             child: Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: foregroundColor,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
             ),
           ),

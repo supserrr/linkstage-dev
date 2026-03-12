@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../bloc/onboarding/profile_setup_cubit.dart';
 import '../../../widgets/atoms/app_button.dart';
@@ -68,43 +69,64 @@ class _UsernameStepState extends State<UsernameStep> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    'Choose your username',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '3-20 characters. Letters, numbers, underscore only.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                ],
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Center(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  final asset = isDark
+                      ? 'assets/images/username_page_illustration_dark.svg'
+                      : 'assets/images/username_page_illustration_light.svg';
+                  return SvgPicture.asset(
+                    asset,
+                    width: constraints.maxWidth,
+                    fit: BoxFit.contain,
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 32),
-            TextFormField(
-              controller: _controller,
-              decoration: const InputDecoration(
+          ),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Choose your username',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '3-20 characters. Letters, numbers, underscore only.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: _controller,
+                  decoration: const InputDecoration(
                 labelText: 'Username',
-                prefixText: '@ ',
-                hintText: 'johndoe',
-              ),
-              autofocus: true,
-              textCapitalization: TextCapitalization.none,
-              autocorrect: false,
-              onChanged: (_) => setState(() => _isAvailable = null),
-              validator: (v) {
+                    prefixText: '@ ',
+                    hintText: 'johndoe',
+                  ),
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.none,
+                  autocorrect: false,
+                  onChanged: (_) => setState(() => _isAvailable = null),
+                  validator: (v) {
                 if (v == null || v.trim().isEmpty) {
                   return 'Username is required';
                 }
@@ -114,18 +136,18 @@ class _UsernameStepState extends State<UsernameStep> {
                 if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(v.trim())) {
                   return 'Letters, numbers, underscore only';
                 }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton.icon(
-                onPressed: _checking || _controller.text.trim().length < 3
-                    ? null
-                    : _checkAvailability,
-                icon: _checking
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: _checking || _controller.text.trim().length < 3
+                        ? null
+                        : _checkAvailability,
+                    icon: _checking
                     ? SizedBox(
                         height: 20,
                         width: 20,
@@ -134,44 +156,46 @@ class _UsernameStepState extends State<UsernameStep> {
                           color: theme.colorScheme.primary,
                         ),
                       )
-                    : Icon(Icons.search, size: 20, color: theme.colorScheme.primary),
-                label: Text(_checking ? 'Checking...' : 'Check availability'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-            if (!_checking && _isAvailable != null) ...[
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(
-                    _isAvailable! ? Icons.check_circle : Icons.cancel,
-                    size: 20,
-                    color: _isAvailable!
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.error,
+                        : Icon(Icons.search, size: 20, color: theme.colorScheme.primary),
+                    label: Text(_checking ? 'Checking...' : 'Check availability'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.colorScheme.primary,
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _isAvailable! ? 'Username is available' : 'Username is taken',
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                ),
+                if (!_checking && _isAvailable != null) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(
+                        _isAvailable! ? Icons.check_circle : Icons.cancel,
+                        size: 20,
+                        color: _isAvailable!
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.error,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _isAvailable! ? 'Username is available' : 'Username is taken',
+                        style: theme.textTheme.bodyMedium?.copyWith(
                       color: _isAvailable!
                           ? theme.colorScheme.primary
                           : theme.colorScheme.error,
-                      fontWeight: FontWeight.w500,
-                    ),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ],
-            const Spacer(),
-            AppButton(
-              label: 'Next',
-              onPressed: _isAvailable == true ? _submit : null,
+                const SizedBox(height: 24),
+                AppButton(
+                  label: 'Next',
+                  onPressed: _isAvailable == true ? _submit : null,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
