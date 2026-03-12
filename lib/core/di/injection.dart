@@ -2,13 +2,22 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/datasources/booking_remote_datasource.dart';
+import '../../data/datasources/event_remote_datasource.dart';
 import '../../data/datasources/profile_remote_datasource.dart';
+import '../../data/datasources/review_remote_datasource.dart';
 import '../../data/datasources/user_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../data/repositories/booking_repository_impl.dart';
+import '../../data/repositories/event_repository_impl.dart';
 import '../../data/repositories/profile_repository_impl.dart';
+import '../../data/repositories/review_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/repositories/booking_repository.dart';
+import '../../domain/repositories/event_repository.dart';
 import '../../domain/repositories/profile_repository.dart';
+import '../../domain/repositories/review_repository.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../domain/usecases/auth/register_with_email_usecase.dart';
 import '../../domain/usecases/auth/send_password_reset_usecase.dart';
@@ -34,6 +43,11 @@ Future<void> initInjection() async {
   sl.registerLazySingleton<ProfileRemoteDataSource>(
     ProfileRemoteDataSource.new,
   );
+  sl.registerLazySingleton<EventRemoteDataSource>(EventRemoteDataSource.new);
+  sl.registerLazySingleton<ReviewRemoteDataSource>(ReviewRemoteDataSource.new);
+  sl.registerLazySingleton<BookingRemoteDataSource>(
+    BookingRemoteDataSource.new,
+  );
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(
@@ -44,6 +58,15 @@ Future<void> initInjection() async {
   );
   sl.registerLazySingleton<ProfileRepository>(
     () => ProfileRepositoryImpl(sl<ProfileRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<EventRepository>(
+    () => EventRepositoryImpl(sl<EventRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<ReviewRepository>(
+    () => ReviewRepositoryImpl(sl<ReviewRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<BookingRepository>(
+    () => BookingRepositoryImpl(sl<BookingRemoteDataSource>()),
   );
 
   // Use cases

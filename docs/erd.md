@@ -97,17 +97,22 @@ erDiagram
 
 ### profiles
 
-| Field        | Type     | Description                                |
-| ------------ | -------- | ------------------------------------------ |
-| id           | string   | Document ID                                |
-| userId       | string   | FK to users.id                             |
-| bio          | string   | Bio/description                            |
-| category     | string   | `dj`, `photographer`, `decorator`, `content_creator` |
-| priceRange   | string   | e.g. "50,000-100,000 RWF"                  |
-| location     | string   | Location                                   |
-| portfolioUrls| array    | Portfolio image URLs                       |
-| rating       | number   | Average rating                             |
-| reviewCount  | int      | Number of reviews                          |
+| Field             | Type   | Description                                                    |
+| ----------------- | ------ | -------------------------------------------------------------- |
+| id                | string | Document ID                                                    |
+| userId            | string | FK to users.id                                                 |
+| bio               | string | Bio/description                                                |
+| category          | string | `dj`, `photographer`, `decorator`, `content_creator`           |
+| priceRange        | string | e.g. "50,000-100,000 RWF"                                     |
+| location          | string | Location                                                       |
+| portfolioUrls     | array  | Portfolio image URLs                                           |
+| portfolioVideoUrls| array  | Portfolio video URLs                                           |
+| availability      | string | `open_to_work` or `not_available`                              |
+| services          | array  | List of service names                                          |
+| languages         | array  | List of language codes                                         |
+| specializations   | array  | e.g. weddings, concerts                                        |
+| rating            | number | Average rating                                                 |
+| reviewCount       | int    | Number of reviews                                              |
 
 ### events
 

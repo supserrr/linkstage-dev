@@ -3,16 +3,18 @@ import 'package:go_router/go_router.dart';
 
 import 'package:linkstage/core/di/injection.dart';
 import 'package:linkstage/core/router/auth_redirect.dart';
+import 'package:linkstage/domain/repositories/auth_repository.dart';
 import 'package:linkstage/presentation/bloc/onboarding/onboarding_cubit.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../presentation/pages/auth/login_page.dart';
 import '../../presentation/pages/auth/password_reset_page.dart';
 import '../../presentation/pages/auth/register_page.dart';
-import '../../presentation/pages/bookings_page.dart';
+import '../../presentation/pages/activity_tab_page.dart';
 import '../../presentation/pages/home_page.dart';
 import '../../presentation/pages/messages_page.dart';
-import '../../presentation/pages/profile_page.dart';
 import '../../presentation/pages/settings_page.dart';
+import '../../presentation/pages/profile/creative_profile_edit_page.dart';
+import '../../presentation/pages/profile/planner_profile_edit_page.dart';
 import '../../presentation/pages/settings/change_username_page.dart';
 import '../../presentation/pages/onboarding/profile_setup_flow_page.dart';
 import '../../presentation/pages/onboarding/onboarding_intro_page.dart';
@@ -39,6 +41,9 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String settings = '/profile/settings';
   static const String changeUsername = '/profile/settings/change-username';
+  static const String creativeProfile = '/profile/creative-profile';
+  static const String plannerProfile = '/profile/planner-profile';
+  static const String myEvents = '/my-events';
 }
 
 /// Application router configuration.
@@ -75,6 +80,7 @@ class AppRouter {
             state.matchedLocation == AppRoutes.search ||
             state.matchedLocation == AppRoutes.messages ||
             state.matchedLocation == AppRoutes.bookings ||
+            state.matchedLocation == AppRoutes.myEvents ||
             state.matchedLocation.startsWith(AppRoutes.profile);
 
         if (state.matchedLocation == AppRoutes.splash) {
@@ -147,7 +153,9 @@ class AppRouter {
           path: AppRoutes.roleSelection,
           name: 'roleSelection',
           builder: (context, state) {
-            final user = (state.extra as UserEntity?) ?? authNotifier.user;
+            final user = (state.extra as UserEntity?) ??
+                authNotifier.user ??
+                sl<AuthRepository>().currentUser;
             if (user == null) {
               return const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
@@ -160,7 +168,9 @@ class AppRouter {
           path: AppRoutes.profileSetup,
           name: 'profileSetup',
           builder: (context, state) {
-            final user = (state.extra as UserEntity?) ?? authNotifier.user;
+            final user = (state.extra as UserEntity?) ??
+                authNotifier.user ??
+                sl<AuthRepository>().currentUser;
             if (user == null) {
               return const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
@@ -209,7 +219,7 @@ class AppRouter {
                   path: '/bookings',
                   name: 'bookings',
                   pageBuilder: (context, state) =>
-                      const NoTransitionPage(child: BookingsPage()),
+                      const NoTransitionPage(child: ActivityTabPage()),
                 ),
               ],
             ),
@@ -219,7 +229,7 @@ class AppRouter {
                   path: '/profile',
                   name: 'profile',
                   pageBuilder: (context, state) =>
-                      const NoTransitionPage(child: ProfilePage()),
+                      const NoTransitionPage(child: SettingsPage()),
                   routes: [
                     GoRoute(
                       path: 'settings',
@@ -233,6 +243,18 @@ class AppRouter {
                               const ChangeUsernamePage(),
                         ),
                       ],
+                    ),
+                    GoRoute(
+                      path: 'creative-profile',
+                      name: 'creativeProfile',
+                      builder: (context, state) =>
+                          const CreativeProfileEditPage(),
+                    ),
+                    GoRoute(
+                      path: 'planner-profile',
+                      name: 'plannerProfile',
+                      builder: (context, state) =>
+                          const PlannerProfileEditPage(),
                     ),
                   ],
                 ),

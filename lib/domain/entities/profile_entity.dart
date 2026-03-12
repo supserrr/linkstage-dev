@@ -3,6 +3,9 @@ import 'package:equatable/equatable.dart';
 /// Creative professional category.
 enum ProfileCategory { dj, photographer, decorator, contentCreator }
 
+/// Availability status for creatives.
+enum ProfileAvailability { openToWork, notAvailable }
+
 /// Domain entity for creative professional profile.
 class ProfileEntity extends Equatable {
   const ProfileEntity({
@@ -14,6 +17,11 @@ class ProfileEntity extends Equatable {
     this.priceRange = '',
     this.location = '',
     this.portfolioUrls = const [],
+    this.portfolioVideoUrls = const [],
+    this.availability,
+    this.services = const [],
+    this.languages = const [],
+    this.specializations = const [],
     this.rating = 0,
     this.reviewCount = 0,
     this.displayName,
@@ -28,9 +36,36 @@ class ProfileEntity extends Equatable {
   final String priceRange;
   final String location;
   final List<String> portfolioUrls;
+  final List<String> portfolioVideoUrls;
+  final ProfileAvailability? availability;
+  final List<String> services;
+  final List<String> languages;
+  final List<String> specializations;
   final double rating;
   final int reviewCount;
   final String? displayName;
+
+  static ProfileAvailability? availabilityFromKey(String? key) {
+    switch (key) {
+      case 'open_to_work':
+        return ProfileAvailability.openToWork;
+      case 'not_available':
+        return ProfileAvailability.notAvailable;
+      default:
+        return null;
+    }
+  }
+
+  String get availabilityKey {
+    switch (availability) {
+      case ProfileAvailability.openToWork:
+        return 'open_to_work';
+      case ProfileAvailability.notAvailable:
+        return 'not_available';
+      case null:
+        return '';
+    }
+  }
 
   String get categoryKey {
     switch (category) {
@@ -63,5 +98,19 @@ class ProfileEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, userId, username, bio, category, priceRange, location];
+  List<Object?> get props => [
+        id,
+        userId,
+        username,
+        bio,
+        category,
+        priceRange,
+        location,
+        portfolioUrls,
+        portfolioVideoUrls,
+        availability,
+        services,
+        languages,
+        specializations,
+      ];
 }
