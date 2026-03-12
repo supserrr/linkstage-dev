@@ -81,7 +81,7 @@ class ProfileRemoteDataSource {
       availability: profile.availability,
       services: profile.services,
       languages: profile.languages,
-      specializations: profile.specializations,
+      professions: profile.professions,
       rating: profile.rating,
       reviewCount: profile.reviewCount,
       displayName: profile.displayName,

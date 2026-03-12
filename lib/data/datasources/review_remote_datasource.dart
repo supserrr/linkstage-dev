@@ -22,4 +22,44 @@ class ReviewRemoteDataSource {
         .map((d) => ReviewModel.fromFirestore(d).toEntity())
         .toList();
   }
+
+  /// Add or update reply to a review.
+  Future<void> addReply(String reviewId, String text) async {
+    await _firestore.collection(_reviewsCollection).doc(reviewId).update({
+      'reply': text,
+      'replyAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Toggle like: add userId to likedBy if not present, remove if present.
+  Future<void> likeReview(String reviewId, String userId) async {
+    final ref = _firestore.collection(_reviewsCollection).doc(reviewId);
+    final doc = await ref.get();
+    if (doc.data() == null) return;
+    final likedBy =
+        List<String>.from((doc.data()!['likedBy'] as List<dynamic>?) ?? []);
+    final hasLiked = likedBy.contains(userId);
+    if (hasLiked) {
+      likedBy.remove(userId);
+    } else {
+      likedBy.add(userId);
+    }
+    await ref.update({'likedBy': likedBy, 'likeCount': likedBy.length});
+  }
+
+  /// Toggle flag: add userId to flaggedBy if not present, remove if present.
+  Future<void> flagReview(String reviewId, String userId) async {
+    final ref = _firestore.collection(_reviewsCollection).doc(reviewId);
+    final doc = await ref.get();
+    if (doc.data() == null) return;
+    final flaggedBy =
+        List<String>.from((doc.data()!['flaggedBy'] as List<dynamic>?) ?? []);
+    final hasFlagged = flaggedBy.contains(userId);
+    if (hasFlagged) {
+      flaggedBy.remove(userId);
+    } else {
+      flaggedBy.add(userId);
+    }
+    await ref.update({'flaggedBy': flaggedBy, 'flagCount': flaggedBy.length});
+  }
 }

@@ -32,6 +32,7 @@ void main() async {
       debugPrint('Firebase init failed: $e');
     }
   }
+
   await initInjection();
 
   runApp(const LinkStageApp());

@@ -60,7 +60,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: p.availability,
           services: p.services,
           languages: p.languages,
-          specializations: p.specializations,
+          professions: p.professions,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,
@@ -86,7 +86,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: p.availability,
           services: p.services,
           languages: p.languages,
-          specializations: p.specializations,
+          professions: p.professions,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,
@@ -95,7 +95,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
     }
   }
 
-  void setCategory(ProfileCategory? value) {
+  void setProfessions(List<String> value) {
     final p = state.profile;
     if (p != null) {
       emit(state.copyWith(
@@ -104,7 +104,8 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           userId: p.userId,
           username: p.username,
           bio: p.bio,
-          category: value,
+          category: p.category,
+          professions: value,
           priceRange: p.priceRange,
           location: p.location,
           portfolioUrls: p.portfolioUrls,
@@ -112,7 +113,6 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: p.availability,
           services: p.services,
           languages: p.languages,
-          specializations: p.specializations,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,
@@ -138,7 +138,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: p.availability,
           services: p.services,
           languages: p.languages,
-          specializations: p.specializations,
+          professions: p.professions,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,
@@ -164,7 +164,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: value,
           services: p.services,
           languages: p.languages,
-          specializations: p.specializations,
+          professions: p.professions,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,
@@ -190,7 +190,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: p.availability,
           services: p.services,
           languages: p.languages,
-          specializations: p.specializations,
+          professions: p.professions,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,
@@ -216,7 +216,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: p.availability,
           services: p.services,
           languages: p.languages,
-          specializations: p.specializations,
+          professions: p.professions,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,
@@ -242,7 +242,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: p.availability,
           services: value,
           languages: p.languages,
-          specializations: p.specializations,
+          professions: p.professions,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,
@@ -268,33 +268,7 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
           availability: p.availability,
           services: p.services,
           languages: value,
-          specializations: p.specializations,
-          rating: p.rating,
-          reviewCount: p.reviewCount,
-          displayName: p.displayName,
-        ),
-      ));
-    }
-  }
-
-  void setSpecializations(List<String> value) {
-    final p = state.profile;
-    if (p != null) {
-      emit(state.copyWith(
-        profile: ProfileEntity(
-          id: p.id,
-          userId: p.userId,
-          username: p.username,
-          bio: p.bio,
-          category: p.category,
-          priceRange: p.priceRange,
-          location: p.location,
-          portfolioUrls: p.portfolioUrls,
-          portfolioVideoUrls: p.portfolioVideoUrls,
-          availability: p.availability,
-          services: p.services,
-          languages: p.languages,
-          specializations: value,
+          professions: p.professions,
           rating: p.rating,
           reviewCount: p.reviewCount,
           displayName: p.displayName,

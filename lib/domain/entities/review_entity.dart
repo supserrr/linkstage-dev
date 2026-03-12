@@ -10,6 +10,12 @@ class ReviewEntity extends Equatable {
     required this.rating,
     this.comment = '',
     this.createdAt,
+    this.reply = '',
+    this.replyAt,
+    this.likeCount = 0,
+    this.likedBy = const [],
+    this.flagCount = 0,
+    this.flaggedBy = const [],
   });
 
   final String id;
@@ -19,7 +25,26 @@ class ReviewEntity extends Equatable {
   final int rating;
   final String comment;
   final DateTime? createdAt;
+  final String reply;
+  final DateTime? replyAt;
+  final int likeCount;
+  final List<String> likedBy;
+  final int flagCount;
+  final List<String> flaggedBy;
 
   @override
-  List<Object?> get props => [id, bookingId, reviewerId, revieweeId, rating, comment];
+  List<Object?> get props => [
+        id,
+        bookingId,
+        reviewerId,
+        revieweeId,
+        rating,
+        comment,
+        reply,
+        replyAt,
+        likeCount,
+        likedBy,
+        flagCount,
+        flaggedBy,
+      ];
 }

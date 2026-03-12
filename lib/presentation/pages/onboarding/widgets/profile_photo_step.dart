@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +26,7 @@ class ProfilePhotoStep extends StatelessWidget {
       imageQuality: 85,
     );
     if (x != null && context.mounted) {
-      context.read<ProfileSetupCubit>().setPhoto(File(x.path));
+      context.read<ProfileSetupCubit>().setPhoto(x);
     }
   }
 
@@ -78,36 +78,43 @@ class ProfilePhotoStep extends StatelessWidget {
                       child: InkWell(
                         onTap: () => _pickImage(context),
                         borderRadius: BorderRadius.circular(60),
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              width: 2,
-                              color: photoFile != null
-                                  ? Colors.transparent
-                                  : theme.colorScheme.primary,
-                            ),
-                            color: photoFile != null
-                                ? null
-                                : theme.colorScheme.primaryContainer,
-                            image: photoFile != null
-                                ? DecorationImage(
-                                    image: FileImage(photoFile),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
-                          child: photoFile == null
-                              ? Center(
-                                  child: Icon(
-                                    Icons.add_a_photo,
-                                    size: 36,
-                                    color: theme.colorScheme.onPrimaryContainer,
-                                  ),
-                                )
-                              : null,
+                        child: FutureBuilder<Uint8List>(
+                          future: photoFile?.readAsBytes(),
+                          builder: (context, snapshot) {
+                            final bytes = snapshot.data;
+                            return Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  width: 2,
+                                  color: photoFile != null
+                                      ? Colors.transparent
+                                      : theme.colorScheme.primary,
+                                ),
+                                color: photoFile != null
+                                    ? null
+                                    : theme.colorScheme.primaryContainer,
+                                image: bytes != null && bytes.isNotEmpty
+                                    ? DecorationImage(
+                                        image: MemoryImage(bytes),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                              child: photoFile == null
+                                  ? Center(
+                                      child: Icon(
+                                        Icons.add_a_photo,
+                                        size: 36,
+                                        color:
+                                            theme.colorScheme.onPrimaryContainer,
+                                      ),
+                                    )
+                                  : null,
+                            );
+                          },
                         ),
                       ),
                     ),

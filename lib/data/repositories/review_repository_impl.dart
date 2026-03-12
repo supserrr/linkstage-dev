@@ -11,4 +11,16 @@ class ReviewRepositoryImpl implements ReviewRepository {
   @override
   Future<List<ReviewEntity>> getReviewsByRevieweeId(String revieweeId) =>
       _remote.getReviewsByRevieweeId(revieweeId);
+
+  @override
+  Future<void> addReply(String reviewId, String text) =>
+      _remote.addReply(reviewId, text);
+
+  @override
+  Future<void> likeReview(String reviewId, String userId) =>
+      _remote.likeReview(reviewId, userId);
+
+  @override
+  Future<void> flagReview(String reviewId, String userId) =>
+      _remote.flagReview(reviewId, userId);
 }

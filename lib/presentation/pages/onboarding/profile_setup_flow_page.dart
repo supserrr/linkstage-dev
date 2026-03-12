@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/injection.dart';
 import '../../../core/router/auth_redirect.dart';
+import '../../../data/datasources/portfolio_storage_datasource.dart';
 import '../../bloc/onboarding/onboarding_cubit.dart';
 import '../../bloc/onboarding/profile_setup_cubit.dart';
 import '../../bloc/onboarding/profile_setup_draft_storage.dart';
 import '../../bloc/onboarding/profile_setup_state.dart';
-import '../../../core/di/injection.dart';
 import '../../../core/router/app_router.dart';
 import '../../../domain/entities/user_entity.dart';
 import '../../../domain/repositories/profile_repository.dart';
@@ -89,6 +90,7 @@ class _ProfileSetupFlowPageState extends State<ProfileSetupFlowPage> {
         sl<UpsertUserUseCase>(),
         sl<ProfileRepository>(),
         sl<UserRepository>(),
+        sl<PortfolioStorageDataSource>(),
         initialDraft: _initialDraft,
       ),
       child: BlocConsumer<ProfileSetupCubit, ProfileSetupState>(

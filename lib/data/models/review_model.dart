@@ -12,6 +12,12 @@ class ReviewModel {
     required this.rating,
     this.comment = '',
     this.createdAt,
+    this.reply = '',
+    this.replyAt,
+    this.likeCount = 0,
+    this.likedBy = const [],
+    this.flagCount = 0,
+    this.flaggedBy = const [],
   });
 
   factory ReviewModel.fromFirestore(
@@ -19,6 +25,9 @@ class ReviewModel {
   ) {
     final data = doc.data() ?? {};
     final ts = data['createdAt'] as Timestamp?;
+    final replyTs = data['replyAt'] as Timestamp?;
+    final likedByList = data['likedBy'] as List<dynamic>?;
+    final flaggedByList = data['flaggedBy'] as List<dynamic>?;
     return ReviewModel(
       id: doc.id,
       bookingId: data['bookingId'] as String? ?? '',
@@ -27,6 +36,12 @@ class ReviewModel {
       rating: data['rating'] as int? ?? 0,
       comment: data['comment'] as String? ?? '',
       createdAt: ts?.toDate(),
+      reply: data['reply'] as String? ?? '',
+      replyAt: replyTs?.toDate(),
+      likeCount: data['likeCount'] as int? ?? 0,
+      likedBy: likedByList?.map((e) => e.toString()).toList() ?? [],
+      flagCount: data['flagCount'] as int? ?? 0,
+      flaggedBy: flaggedByList?.map((e) => e.toString()).toList() ?? [],
     );
   }
 
@@ -37,6 +52,12 @@ class ReviewModel {
   final int rating;
   final String comment;
   final DateTime? createdAt;
+  final String reply;
+  final DateTime? replyAt;
+  final int likeCount;
+  final List<String> likedBy;
+  final int flagCount;
+  final List<String> flaggedBy;
 
   ReviewEntity toEntity() {
     return ReviewEntity(
@@ -47,6 +68,12 @@ class ReviewModel {
       rating: rating,
       comment: comment,
       createdAt: createdAt,
+      reply: reply,
+      replyAt: replyAt,
+      likeCount: likeCount,
+      likedBy: likedBy,
+      flagCount: flagCount,
+      flaggedBy: flaggedBy,
     );
   }
 }

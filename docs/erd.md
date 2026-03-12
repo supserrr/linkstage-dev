@@ -105,12 +105,12 @@ erDiagram
 | category          | string | `dj`, `photographer`, `decorator`, `content_creator`           |
 | priceRange        | string | e.g. "50,000-100,000 RWF"                                     |
 | location          | string | Location                                                       |
-| portfolioUrls     | array  | Portfolio image URLs                                           |
-| portfolioVideoUrls| array  | Portfolio video URLs                                           |
+| portfolioUrls     | array  | Portfolio image URLs (hosted on Supabase Storage)               |
+| portfolioVideoUrls| array  | Portfolio video URLs (hosted on Supabase Storage)               |
 | availability      | string | `open_to_work` or `not_available`                              |
-| services          | array  | List of service names                                          |
+| services          | array  | Services and specializations (e.g. DJ, weddings, photography)   |
 | languages         | array  | List of language codes                                         |
-| specializations   | array  | e.g. weddings, concerts                                        |
+| professions       | array  | User-typed professions (e.g. DJ, photographer)                  |
 | rating            | number | Average rating                                                 |
 | reviewCount       | int    | Number of reviews                                              |
 
@@ -159,14 +159,25 @@ erDiagram
 
 ### reviews
 
-| Field      | Type     | Description                    |
-| ---------- | -------- | ------------------------------ |
-| id         | string   | Document ID                    |
-| bookingId  | string   | FK to bookings.id              |
-| reviewerId | string   | FK to users.id (who wrote it)  |
-| revieweeId | string   | FK to users.id (who is reviewed)|
-| rating     | int      | 1-5 stars                      |
-| comment    | string   | Review text                    |
+| Field      | Type     | Description                         |
+| ---------- | -------- | ----------------------------------- |
+| id         | string   | Document ID                         |
+| bookingId  | string   | FK to bookings.id                   |
+| reviewerId | string   | FK to users.id (who wrote it)       |
+| revieweeId | string   | FK to users.id (who is reviewed)    |
+| rating     | int      | 1-5 stars                           |
+| comment    | string   | Review text                         |
+| createdAt  | timestamp| When review was created             |
+| reply      | string   | Reviewee's reply                    |
+| replyAt    | timestamp| When reply was added                |
+| likeCount  | int      | Number of likes                     |
+| likedBy    | array    | User IDs who liked                  |
+| flagCount  | int      | Number of flags                     |
+| flaggedBy  | array    | User IDs who flagged                |
+
+## Storage (Supabase)
+
+Portfolio media (images and videos) are stored in Supabase Storage at `users/{userId}/portfolio/images/` and `users/{userId}/portfolio/videos/`. Profile documents in Firestore store the resulting public URLs in `portfolioUrls` and `portfolioVideoUrls`.
 
 ## Composite Indexes
 

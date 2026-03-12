@@ -1,15 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
-import '../../../domain/entities/review_entity.dart';
 import '../../bloc/creative_profile/creative_profile_cubit.dart';
 import '../../bloc/creative_profile/creative_profile_state.dart';
 import '../../../core/di/injection.dart';
+import '../../../data/datasources/portfolio_storage_datasource.dart';
 import '../../../domain/entities/profile_entity.dart';
+import '../../../domain/entities/user_entity.dart';
 import '../../../domain/repositories/booking_repository.dart';
 import '../../../domain/repositories/profile_repository.dart';
 import '../../../domain/repositories/review_repository.dart';
+import '../../../domain/repositories/user_repository.dart';
 import '../../../core/router/auth_redirect.dart';
 
 /// Creative professional profile edit page.
@@ -110,26 +113,11 @@ class _CreativeProfileView extends StatelessWidget {
               ),
               _Section(
                 title: 'Profession',
-                child: DropdownButtonFormField<ProfileCategory?>(
-                  // ignore: deprecated_member_use - value needed for controlled updates
-                  value: profile.category,
-                  decoration: const InputDecoration(
-                    hintText: 'Select profession',
-                  ),
-                  items: [
-                    const DropdownMenuItem(
-                      value: null,
-                      child: Text('Select'),
-                    ),
-                    ...ProfileCategory.values.map(
-                      (c) => DropdownMenuItem(
-                        value: c,
-                        child: Text(_categoryLabel(c)),
-                      ),
-                    ),
-                  ],
+                child: _ChipEditor(
+                  values: profile.professions,
+                  hintText: 'Add profession (e.g. DJ, photographer)',
                   onChanged: (v) =>
-                      context.read<CreativeProfileCubit>().setCategory(v),
+                      context.read<CreativeProfileCubit>().setProfessions(v),
                 ),
               ),
               _Section(
@@ -184,7 +172,7 @@ class _CreativeProfileView extends StatelessWidget {
                 title: 'Services',
                 child: _ChipEditor(
                   values: profile.services,
-                  hintText: 'Add service (e.g. DJ set, photography)',
+                  hintText: 'Add service or specialization (e.g. DJ, weddings, photography)',
                   onChanged: (v) =>
                       context.read<CreativeProfileCubit>().setServices(v),
                 ),
@@ -198,59 +186,77 @@ class _CreativeProfileView extends StatelessWidget {
                       context.read<CreativeProfileCubit>().setLanguages(v),
                 ),
               ),
-              _Section(
-                title: 'Specializations',
-                child: _ChipEditor(
-                  values: profile.specializations,
-                  hintText: 'e.g. weddings, concerts, corporate',
-                  onChanged: (v) =>
-                      context.read<CreativeProfileCubit>().setSpecializations(v),
-                ),
+              _PortfolioSection(
+                profile: profile,
+                userId: sl<AuthRedirectNotifier>().user!.id,
               ),
-              _Section(
-                title: 'Portfolio images',
-                child: Text(
-                  '${profile.portfolioUrls.length} image(s)',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-              _Section(
-                title: 'Portfolio videos',
-                child: Text(
-                  '${profile.portfolioVideoUrls.length} video(s)',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _ReviewsSection(reviews: state.reviews),
             ],
           );
         },
       ),
     );
   }
-
-  String _categoryLabel(ProfileCategory c) {
-    switch (c) {
-      case ProfileCategory.dj:
-        return 'DJ';
-      case ProfileCategory.photographer:
-        return 'Photographer';
-      case ProfileCategory.decorator:
-        return 'Decorator';
-      case ProfileCategory.contentCreator:
-        return 'Content Creator';
-    }
-  }
 }
 
-class _ProfilePhotoSection extends StatelessWidget {
+class _ProfilePhotoSection extends StatefulWidget {
   const _ProfilePhotoSection();
 
   @override
+  State<_ProfilePhotoSection> createState() => _ProfilePhotoSectionState();
+}
+
+class _ProfilePhotoSectionState extends State<_ProfilePhotoSection> {
+  bool _isUploading = false;
+
+  Future<void> _changePhoto() async {
+    if (_isUploading) return;
+    final user = sl<AuthRedirectNotifier>().user;
+    if (user == null) return;
+    final picker = ImagePicker();
+    final x = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 85,
+    );
+    if (x == null || !mounted) return;
+    setState(() => _isUploading = true);
+    try {
+      final url = await sl<PortfolioStorageDataSource>().uploadProfilePhoto(
+        x,
+        user.id,
+      );
+      await sl<UserRepository>().upsertUser(
+        UserEntity(
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          displayName: user.displayName,
+          photoUrl: url,
+          role: user.role,
+          lastUsernameChangeAt: user.lastUsernameChangeAt,
+        ),
+      );
+      await sl<AuthRedirectNotifier>().refresh();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception:', '').trim())),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final photoUrl = sl<AuthRedirectNotifier>().user?.photoUrl;
-    return Center(
+    final authNotifier = sl<AuthRedirectNotifier>();
+    return ListenableBuilder(
+      listenable: authNotifier,
+      builder: (context, _) {
+        final photoUrl = authNotifier.user?.photoUrl;
+        return Center(
       child: Stack(
         children: [
           CircleAvatar(
@@ -267,14 +273,20 @@ class _ProfilePhotoSection extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: IconButton(
-              icon: const Icon(Icons.camera_alt),
-              onPressed: () {
-                // Placeholder: profile photo update
-              },
+              icon: _isUploading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.camera_alt),
+              onPressed: _isUploading ? null : _changePhoto,
             ),
           ),
         ],
       ),
+    );
+      },
     );
   }
 }
@@ -433,38 +445,228 @@ class _ChipEditorState extends State<_ChipEditor> {
   }
 }
 
-class _ReviewsSection extends StatelessWidget {
-  const _ReviewsSection({required this.reviews});
+class _PortfolioSection extends StatefulWidget {
+  const _PortfolioSection({
+    required this.profile,
+    required this.userId,
+  });
 
-  final List<ReviewEntity> reviews;
+  final ProfileEntity profile;
+  final String userId;
+
+  @override
+  State<_PortfolioSection> createState() => _PortfolioSectionState();
+}
+
+class _PortfolioSectionState extends State<_PortfolioSection> {
+  bool _isUploading = false;
+
+  Future<void> _showAddOptions() async {
+    final isVideo = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Add photo'),
+              onTap: () => Navigator.pop(ctx, false),
+            ),
+            ListTile(
+              leading: const Icon(Icons.videocam),
+              title: const Text('Add video'),
+              onTap: () => Navigator.pop(ctx, true),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (isVideo == null || !mounted) return;
+    final picker = ImagePicker();
+    final XFile? file = isVideo
+        ? await picker.pickVideo(source: ImageSource.gallery)
+        : await picker.pickImage(
+            source: ImageSource.gallery,
+            maxWidth: 1920,
+            maxHeight: 1920,
+            imageQuality: 85,
+          );
+    if (file == null || !mounted) return;
+    setState(() => _isUploading = true);
+    try {
+      final storage = sl<PortfolioStorageDataSource>();
+      final url = await storage.uploadPortfolioMedia(
+        file,
+        widget.userId,
+        isVideo: isVideo,
+      );
+      if (!mounted) return;
+      final cubit = context.read<CreativeProfileCubit>();
+      final p = cubit.state.profile;
+      if (p == null) return;
+      if (isVideo) {
+        cubit.setPortfolioVideoUrls([...p.portfolioVideoUrls, url]);
+      } else {
+        cubit.setPortfolioUrls([...p.portfolioUrls, url]);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final profile = widget.profile;
+    final images = profile.portfolioUrls;
+    final videos = profile.portfolioVideoUrls;
+    const itemSize = 80.0;
+    const spacing = 8.0;
+
     return _Section(
-      title: 'Reviews',
-      child: reviews.isEmpty
-          ? Text(
-              'No reviews yet',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+      title: 'Portfolio',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: _isUploading ? null : _showAddOptions,
+                  child: Container(
+                    width: itemSize,
+                    height: itemSize,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+                        width: 1.5,
+                        strokeAlign: BorderSide.strokeAlignInside,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _isUploading
+                        ? const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : Center(
+                            child: Icon(
+                              Icons.add,
+                              size: 32,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(width: spacing),
+                ...images.map((url) => Padding(
+                      padding: const EdgeInsets.only(right: spacing),
+                      child: _PortfolioThumb(
+                        url: url,
+                        isVideo: false,
+                        itemSize: itemSize,
+                        onRemove: () {
+                          context.read<CreativeProfileCubit>().setPortfolioUrls(
+                                images.where((u) => u != url).toList(),
+                              );
+                        },
+                      ),
+                    )),
+                ...videos.map((url) => Padding(
+                      padding: const EdgeInsets.only(right: spacing),
+                      child: _PortfolioThumb(
+                        url: url,
+                        isVideo: true,
+                        itemSize: itemSize,
+                        onRemove: () {
+                          context
+                              .read<CreativeProfileCubit>()
+                              .setPortfolioVideoUrls(
+                                videos.where((u) => u != url).toList(),
+                              );
+                        },
+                      ),
+                    )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PortfolioThumb extends StatelessWidget {
+  const _PortfolioThumb({
+    required this.url,
+    required this.isVideo,
+    required this.itemSize,
+    required this.onRemove,
+  });
+
+  final String url;
+  final bool isVideo;
+  final double itemSize;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: itemSize,
+          height: itemSize,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: isVideo
+              ? Center(
+                  child: Icon(
+                    Icons.play_circle_outline,
+                    size: 36,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-            )
-          : Column(
-              children: reviews.take(10).map((r) {
-                return Card(
-                  child: ListTile(
-                    title: Row(
-                      children: [
-                        Icon(Icons.star, size: 16, color: Theme.of(context).colorScheme.primary),
-                        const SizedBox(width: 4),
-                        Text('${r.rating}'),
-                      ],
-                    ),
-                    subtitle: r.comment.isNotEmpty ? Text(r.comment) : null,
-                  ),
-                );
-              }).toList(),
+                )
+              : CachedNetworkImage(
+                  imageUrl: url,
+                  fit: BoxFit.cover,
+                ),
+        ),
+        Positioned(
+          top: -4,
+          right: -4,
+          child: Material(
+            color: Theme.of(context).colorScheme.errorContainer,
+            shape: const CircleBorder(),
+            child: InkWell(
+              onTap: onRemove,
+              customBorder: const CircleBorder(),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  Icons.close,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+              ),
             ),
+          ),
+        ),
+      ],
     );
   }
 }

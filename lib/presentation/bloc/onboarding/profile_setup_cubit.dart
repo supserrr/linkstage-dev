@@ -1,7 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../../data/datasources/portfolio_storage_datasource.dart';
 import '../../../domain/entities/profile_entity.dart';
 import '../../../domain/entities/user_entity.dart';
 import '../../../domain/repositories/profile_repository.dart';
@@ -15,7 +15,8 @@ class ProfileSetupCubit extends Cubit<ProfileSetupState> {
     this._user,
     this._upsertUser,
     this._profileRepository,
-    this._userRepository, {
+    this._userRepository,
+    this._storage, {
     ProfileSetupState? initialDraft,
   }) : super(ProfileSetupState.initial()) {
     _loadInitial(initialDraft);
@@ -25,6 +26,7 @@ class ProfileSetupCubit extends Cubit<ProfileSetupState> {
   final UpsertUserUseCase _upsertUser;
   final ProfileRepository _profileRepository;
   final UserRepository _userRepository;
+  final PortfolioStorageDataSource _storage;
 
   void _loadInitial([ProfileSetupState? draft]) {
     if (draft != null) {
@@ -39,7 +41,10 @@ class ProfileSetupCubit extends Cubit<ProfileSetupState> {
 
   void setUsername(String value) => emit(state.copyWith(username: value));
 
-  void setPhoto(File? file) => emit(state.copyWith(photoFile: file));
+  void setPhoto(XFile? file) => emit(state.copyWith(
+        photoFile: file,
+        clearPhotoFile: file == null,
+      ));
 
   void setDisplayName(String value) => emit(state.copyWith(displayName: value));
 
@@ -64,13 +69,20 @@ class ProfileSetupCubit extends Cubit<ProfileSetupState> {
     }
     emit(state.copyWith(isLoading: true, error: null));
     try {
+      String? photoUrl = _user.photoUrl;
+      if (state.photoFile != null) {
+        photoUrl = await _storage.uploadProfilePhoto(
+          state.photoFile!,
+          _user.id,
+        );
+      }
       final username = state.username!.toLowerCase().trim();
       final userWithUsername = UserEntity(
         id: _user.id,
         email: _user.email,
         username: username,
         displayName: state.displayName.isNotEmpty ? state.displayName : username,
-        photoUrl: _user.photoUrl,
+        photoUrl: photoUrl,
         role: _user.role,
       );
       await _upsertUser(userWithUsername);

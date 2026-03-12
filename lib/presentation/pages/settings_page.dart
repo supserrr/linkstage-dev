@@ -152,14 +152,8 @@ class _ViewProfileSection extends StatelessWidget {
     final photoUrl = user?.photoUrl as String?;
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: GestureDetector(
-        onTap: () {
-          if (role == UserRole.creativeProfessional) {
-            context.push(AppRoutes.creativeProfile);
-          } else if (role == UserRole.eventPlanner) {
-            context.push(AppRoutes.plannerProfile);
-          }
-        },
+        child: GestureDetector(
+        onTap: () => context.push(AppRoutes.viewProfile),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

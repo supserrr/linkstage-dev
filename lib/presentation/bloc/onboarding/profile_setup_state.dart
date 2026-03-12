@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../domain/entities/profile_entity.dart';
 
@@ -32,7 +31,7 @@ class ProfileSetupState extends Equatable {
         success = false;
 
   final String? username;
-  final File? photoFile;
+  final XFile? photoFile;
   final String displayName;
   final String bio;
   final String location;
@@ -44,7 +43,8 @@ class ProfileSetupState extends Equatable {
 
   ProfileSetupState copyWith({
     String? username,
-    File? photoFile,
+    XFile? photoFile,
+    bool clearPhotoFile = false,
     String? displayName,
     String? bio,
     String? location,
@@ -56,7 +56,7 @@ class ProfileSetupState extends Equatable {
   }) {
     return ProfileSetupState(
       username: username ?? this.username,
-      photoFile: photoFile ?? this.photoFile,
+      photoFile: clearPhotoFile ? null : (photoFile ?? this.photoFile),
       displayName: displayName ?? this.displayName,
       bio: bio ?? this.bio,
       location: location ?? this.location,

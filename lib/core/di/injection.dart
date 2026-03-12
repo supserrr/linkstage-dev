@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/datasources/booking_remote_datasource.dart';
+import '../../data/datasources/portfolio_storage_datasource.dart';
 import '../../data/datasources/event_remote_datasource.dart';
 import '../../data/datasources/profile_remote_datasource.dart';
 import '../../data/datasources/review_remote_datasource.dart';
@@ -48,6 +49,9 @@ Future<void> initInjection() async {
   sl.registerLazySingleton<ReviewRemoteDataSource>(ReviewRemoteDataSource.new);
   sl.registerLazySingleton<BookingRemoteDataSource>(
     BookingRemoteDataSource.new,
+  );
+  sl.registerLazySingleton<PortfolioStorageDataSource>(
+    PortfolioStorageDataSource.new,
   );
 
   // Repositories

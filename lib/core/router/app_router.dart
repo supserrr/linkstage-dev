@@ -13,8 +13,10 @@ import '../../presentation/pages/activity_tab_page.dart';
 import '../../presentation/pages/home_page.dart';
 import '../../presentation/pages/messages_page.dart';
 import '../../presentation/pages/settings_page.dart';
+import '../../presentation/pages/profile/view_profile_page.dart';
 import '../../presentation/pages/profile/creative_profile_edit_page.dart';
 import '../../presentation/pages/profile/planner_profile_edit_page.dart';
+import '../../presentation/pages/profile/profile_reviews_page.dart';
 import '../../presentation/pages/settings/change_username_page.dart';
 import '../../presentation/pages/settings/change_email_page.dart';
 import '../../presentation/pages/settings/privacy_settings_page.dart';
@@ -44,8 +46,10 @@ class AppRoutes {
   static const String changeUsername = '/profile/change-username';
   static const String changeEmail = '/profile/change-email';
   static const String privacy = '/profile/privacy';
+  static const String viewProfile = '/profile/view';
   static const String creativeProfile = '/profile/creative-profile';
   static const String plannerProfile = '/profile/planner-profile';
+  static const String profileReviews = '/profile/view/reviews';
   static const String myEvents = '/my-events';
 }
 
@@ -251,6 +255,20 @@ class AppRouter {
                       name: 'privacy',
                       builder: (context, state) =>
                           const PrivacySettingsPage(),
+                    ),
+                    GoRoute(
+                      path: 'view',
+                      name: 'viewProfile',
+                      builder: (context, state) =>
+                          const ViewProfilePage(),
+                      routes: [
+                        GoRoute(
+                          path: 'reviews',
+                          name: 'profileReviews',
+                          builder: (context, state) =>
+                              const ProfileReviewsPage(),
+                        ),
+                      ],
                     ),
                     GoRoute(
                       path: 'creative-profile',

@@ -14,6 +14,7 @@ class ProfileEntity extends Equatable {
     this.username,
     this.bio = '',
     this.category,
+    this.professions = const [],
     this.priceRange = '',
     this.location = '',
     this.portfolioUrls = const [],
@@ -21,7 +22,6 @@ class ProfileEntity extends Equatable {
     this.availability,
     this.services = const [],
     this.languages = const [],
-    this.specializations = const [],
     this.rating = 0,
     this.reviewCount = 0,
     this.displayName,
@@ -33,6 +33,7 @@ class ProfileEntity extends Equatable {
   final String? username;
   final String bio;
   final ProfileCategory? category;
+  final List<String> professions;
   final String priceRange;
   final String location;
   final List<String> portfolioUrls;
@@ -40,7 +41,6 @@ class ProfileEntity extends Equatable {
   final ProfileAvailability? availability;
   final List<String> services;
   final List<String> languages;
-  final List<String> specializations;
   final double rating;
   final int reviewCount;
   final String? displayName;
@@ -111,6 +111,6 @@ class ProfileEntity extends Equatable {
         availability,
         services,
         languages,
-        specializations,
+        professions,
       ];
 }

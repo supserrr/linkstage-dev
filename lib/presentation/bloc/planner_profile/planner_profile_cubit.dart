@@ -15,11 +15,13 @@ class PlannerProfileCubit extends Cubit<PlannerProfileState> {
     this._bookingRepository,
     this._profileRepository,
     String plannerId,
-  ) : super(const PlannerProfileState()) {
+  ) : _plannerId = plannerId,
+       super(const PlannerProfileState()) {
     load(plannerId);
   }
 
   final UserRepository _userRepository;
+  final String _plannerId;
   final EventRepository _eventRepository;
   final BookingRepository _bookingRepository;
   final ProfileRepository _profileRepository;
@@ -53,4 +55,7 @@ class PlannerProfileCubit extends Cubit<PlannerProfileState> {
       ));
     }
   }
+
+  /// Reload user and related data (e.g. after profile photo update).
+  Future<void> refresh() => load(_plannerId);
 }

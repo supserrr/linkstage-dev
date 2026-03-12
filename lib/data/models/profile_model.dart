@@ -18,7 +18,7 @@ class ProfileModel {
     this.availability,
     this.services = const [],
     this.languages = const [],
-    this.specializations = const [],
+    this.professions = const [],
     this.rating = 0,
     this.reviewCount = 0,
     this.displayName,
@@ -33,6 +33,10 @@ class ProfileModel {
     final svcs = data['services'] as List<dynamic>?;
     final langs = data['languages'] as List<dynamic>?;
     final specs = data['specializations'] as List<dynamic>?;
+    final profs = data['professions'] as List<dynamic>?;
+    final svcList = svcs?.map((e) => e.toString()).toList() ?? [];
+    final specList = specs?.map((e) => e.toString()).toList() ?? [];
+    final mergedServices = [...{...svcList, ...specList}];
     return ProfileModel(
       id: doc.id,
       userId: data['userId'] as String? ?? '',
@@ -41,14 +45,14 @@ class ProfileModel {
       category: ProfileEntity.categoryFromKey(data['category'] as String?),
       priceRange: data['priceRange'] as String? ?? '',
       location: data['location'] as String? ?? '',
-      portfolioUrls: portfolio?.map((e) => e.toString()).toList() ?? const [],
+      portfolioUrls: portfolio?.map((e) => e.toString()).toList() ?? [],
       portfolioVideoUrls:
           portfolioVideos?.map((e) => e.toString()).toList() ?? const [],
       availability:
           ProfileEntity.availabilityFromKey(data['availability'] as String?),
-      services: svcs?.map((e) => e.toString()).toList() ?? const [],
+      services: mergedServices,
       languages: langs?.map((e) => e.toString()).toList() ?? const [],
-      specializations: specs?.map((e) => e.toString()).toList() ?? const [],
+      professions: profs?.map((e) => e.toString()).toList() ?? const [],
       rating: (data['rating'] as num?)?.toDouble() ?? 0,
       reviewCount: data['reviewCount'] as int? ?? 0,
       displayName: data['displayName'] as String?,
@@ -67,7 +71,7 @@ class ProfileModel {
   final ProfileAvailability? availability;
   final List<String> services;
   final List<String> languages;
-  final List<String> specializations;
+  final List<String> professions;
   final double rating;
   final int reviewCount;
   final String? displayName;
@@ -85,7 +89,7 @@ class ProfileModel {
       'availability': availability != null ? _availabilityKey : null,
       'services': services,
       'languages': languages,
-      'specializations': specializations,
+      'professions': professions,
       'rating': rating,
       'reviewCount': reviewCount,
       'displayName': displayName,
@@ -117,7 +121,7 @@ class ProfileModel {
       availability: availability,
       services: services,
       languages: languages,
-      specializations: specializations,
+      professions: professions,
       rating: rating,
       reviewCount: reviewCount,
       displayName: displayName,

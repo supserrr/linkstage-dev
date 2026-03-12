@@ -22,6 +22,7 @@ class AuthRemoteDataSource {
       email: email,
       password: password,
     );
+    await cred.user?.getIdToken(true);
     final user = _userFromFirebase(cred.user);
     if (user == null) {
       throw FirebaseAuthException(code: 'no-user', message: 'Sign in failed');
@@ -49,6 +50,8 @@ class AuthRemoteDataSource {
         ? displayName!
         : email.split('@').first;
     await user.updateDisplayName(name);
+    await Future.delayed(const Duration(seconds: 2));
+    await user.getIdToken(true);
     return _userFromFirebase(user)!;
   }
 
@@ -67,7 +70,11 @@ class AuthRemoteDataSource {
       idToken: googleAuth.idToken,
     );
     final result = await _auth.signInWithCredential(cred);
-    final user = _userFromFirebase(result.user);
+    final firebaseUser = result.user;
+    if (firebaseUser != null) {
+      await firebaseUser.getIdToken(true);
+    }
+    final user = _userFromFirebase(firebaseUser);
     if (user == null) {
       throw FirebaseAuthException(code: 'no-user', message: 'Sign in failed');
     }

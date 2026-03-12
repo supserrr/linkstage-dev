@@ -12,6 +12,9 @@ build/
 .vscode/
 *.iml
 
+# Firebase Functions
+functions/node_modules/
+
 # Misc
 .DS_Store
 *.log

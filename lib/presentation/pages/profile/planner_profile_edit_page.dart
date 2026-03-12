@@ -1,16 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../data/datasources/portfolio_storage_datasource.dart';
 import '../../../domain/entities/event_entity.dart';
+import '../../../domain/entities/user_entity.dart';
+import '../../../domain/repositories/user_repository.dart';
 import '../../bloc/planner_profile/planner_profile_cubit.dart';
 import '../../bloc/planner_profile/planner_profile_state.dart';
-import '../../../core/di/injection.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../domain/repositories/booking_repository.dart';
 import '../../../domain/repositories/event_repository.dart';
 import '../../../domain/repositories/profile_repository.dart';
-import '../../../domain/repositories/user_repository.dart';
 import '../../widgets/molecules/vendor_card.dart';
 
 /// Event planner profile edit page.
@@ -65,7 +68,11 @@ class _PlannerProfileView extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _ProfilePhotoSection(photoUrl: user.photoUrl),
+              _ProfilePhotoSection(
+                user: user,
+                onPhotoUpdated: () =>
+                    context.read<PlannerProfileCubit>().refresh(),
+              ),
               const SizedBox(height: 16),
               Text(
                 user.displayName ?? 'Event Planner',
@@ -123,23 +130,99 @@ class _PlannerProfileView extends StatelessWidget {
   }
 }
 
-class _ProfilePhotoSection extends StatelessWidget {
-  const _ProfilePhotoSection({this.photoUrl});
+class _ProfilePhotoSection extends StatefulWidget {
+  const _ProfilePhotoSection({
+    required this.user,
+    required this.onPhotoUpdated,
+  });
 
-  final String? photoUrl;
+  final UserEntity user;
+  final VoidCallback onPhotoUpdated;
+
+  @override
+  State<_ProfilePhotoSection> createState() => _ProfilePhotoSectionState();
+}
+
+class _ProfilePhotoSectionState extends State<_ProfilePhotoSection> {
+  bool _isUploading = false;
+
+  Future<void> _changePhoto() async {
+    if (_isUploading) return;
+    final picker = ImagePicker();
+    final x = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 85,
+    );
+    if (x == null || !mounted) return;
+    setState(() => _isUploading = true);
+    try {
+      final url = await sl<PortfolioStorageDataSource>().uploadProfilePhoto(
+        x,
+        widget.user.id,
+      );
+      await sl<UserRepository>().upsertUser(
+        UserEntity(
+          id: widget.user.id,
+          email: widget.user.email,
+          username: widget.user.username,
+          displayName: widget.user.displayName,
+          photoUrl: url,
+          role: widget.user.role,
+          lastUsernameChangeAt: widget.user.lastUsernameChangeAt,
+        ),
+      );
+      await sl<AuthRedirectNotifier>().refresh();
+      widget.onPhotoUpdated();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString().replaceAll('Exception:', '').trim(),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final photoUrl = widget.user.photoUrl;
     return Center(
-      child: CircleAvatar(
-        radius: 48,
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-        backgroundImage: photoUrl != null && photoUrl!.isNotEmpty
-            ? CachedNetworkImageProvider(photoUrl!)
-            : null,
-        child: photoUrl == null || photoUrl!.isEmpty
-            ? const Icon(Icons.person, size: 48)
-            : null,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          CircleAvatar(
+            radius: 48,
+            backgroundColor:
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+            backgroundImage: photoUrl != null && photoUrl.isNotEmpty
+                ? CachedNetworkImageProvider(photoUrl)
+                : null,
+            child: photoUrl == null || photoUrl.isEmpty
+                ? const Icon(Icons.person, size: 48)
+                : null,
+          ),
+          Positioned(
+            right: -4,
+            bottom: -4,
+            child: IconButton(
+              icon: _isUploading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.camera_alt),
+              onPressed: _isUploading ? null : _changePhoto,
+            ),
+          ),
+        ],
       ),
     );
   }
