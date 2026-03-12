@@ -7,6 +7,7 @@ import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
 import '../../widgets/atoms/app_button.dart';
 import '../../widgets/atoms/app_text_field.dart';
+import '../../widgets/atoms/auth_sign_illustration.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/validators.dart';
@@ -31,13 +32,13 @@ class _RegisterViewState extends State<_RegisterView> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _displayNameController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _displayNameController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -47,7 +48,6 @@ class _RegisterViewState extends State<_RegisterView> {
       AuthRegisterRequested(
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        displayName: _displayNameController.text.trim(),
       ),
     );
   }
@@ -55,27 +55,41 @@ class _RegisterViewState extends State<_RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create account')),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Join ${AppConstants.appName}',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 32),
-                AppTextField(
-                  controller: _displayNameController,
-                  label: 'Display name',
-                  textInputAction: TextInputAction.next,
-                  validator: (v) => Validators.required(v, 'Display name'),
-                ),
-                const SizedBox(height: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Center(
+                child: AuthSignIllustration(height: 200),
+              ),
+            ),
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 32),
+                  Text(
+                    'Create Account',
+                    style: Theme.of(context).textTheme.headlineLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'to get started now!',
+                    style: Theme.of(context).textTheme.titleMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
                 AppTextField(
                   controller: _emailController,
                   label: 'Email',
@@ -89,8 +103,24 @@ class _RegisterViewState extends State<_RegisterView> {
                   label: 'Password',
                   hint: 'Min ${AppConstants.minPasswordLength} characters',
                   obscureText: true,
-                  textInputAction: TextInputAction.done,
+                  textInputAction: TextInputAction.next,
                   validator: Validators.password,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  controller: _confirmPasswordController,
+                  label: 'Confirm Password',
+                  obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (v != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 32),
                 BlocConsumer<AuthBloc, AuthState>(
@@ -99,20 +129,21 @@ class _RegisterViewState extends State<_RegisterView> {
                       context.go(AppRoutes.roleSelection, extra: state.user);
                     }
                     if (state is AuthError) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(state.message)));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
                     }
                   },
                   builder: (context, state) {
+                    final loading = state is AuthLoading;
                     return AppButton(
-                      label: 'Create account',
+                      label: 'Sign up',
                       onPressed: _submit,
-                      isLoading: state is AuthLoading,
+                      isLoading: loading,
                     );
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -129,6 +160,8 @@ class _RegisterViewState extends State<_RegisterView> {
               ],
             ),
           ),
+            ),
+          ],
         ),
       ),
     );

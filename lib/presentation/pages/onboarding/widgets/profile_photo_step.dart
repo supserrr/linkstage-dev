@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../bloc/onboarding/profile_setup_cubit.dart';
 import '../../../bloc/onboarding/profile_setup_state.dart';
+import '../../../widgets/atoms/app_button.dart';
 
 class ProfilePhotoStep extends StatelessWidget {
   const ProfilePhotoStep({
@@ -41,46 +42,68 @@ class ProfilePhotoStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Add a profile photo',
-                style: theme.textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Help others recognize you. You can skip for now.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 48),
               Center(
-                child: GestureDetector(
-                  onTap: () => _pickImage(context),
-                  child: CircleAvatar(
-                    radius: 64,
-                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                    backgroundImage: photoFile != null
-                        ? FileImage(photoFile)
-                        : null,
-                    child: photoFile == null
-                        ? Icon(
-                            Icons.add_a_photo,
-                            size: 48,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          )
-                        : null,
+                child: Column(
+                  children: [
+                    Text(
+                      'Add a profile photo',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Optional. Skip for now.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _pickImage(context),
+                      borderRadius: BorderRadius.circular(80),
+                      child: Container(
+                        width: 160,
+                        height: 160,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            width: 2,
+                            color: photoFile != null
+                                ? Colors.transparent
+                                : theme.colorScheme.primary,
+                          ),
+                          color: photoFile != null
+                              ? null
+                              : theme.colorScheme.primaryContainer,
+                          image: photoFile != null
+                              ? DecorationImage(
+                                  image: FileImage(photoFile),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: photoFile == null
+                            ? Center(
+                                child: Icon(
+                                  Icons.add_a_photo,
+                                  size: 48,
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                ),
+                              )
+                            : null,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
-              Center(
-                child: TextButton(
-                  onPressed: () => _pickImage(context),
-                  child: const Text('Add photo'),
-                ),
-              ),
-              const Spacer(),
-              FilledButton(
+              AppButton(
+                label: 'Next',
                 onPressed: onNext,
-                child: const Text('Next'),
               ),
               const SizedBox(height: 8),
               TextButton(

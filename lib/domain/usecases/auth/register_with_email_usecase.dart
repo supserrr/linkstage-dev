@@ -7,7 +7,7 @@ class RegisterWithEmailUseCase {
 
   final AuthRepository _repository;
 
-  Future<UserEntity> call(String email, String password, String displayName) {
+  Future<UserEntity> call(String email, String password, [String? displayName]) {
     return _repository.registerWithEmail(email, password, displayName);
   }
 }

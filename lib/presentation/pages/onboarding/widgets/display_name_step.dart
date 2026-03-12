@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../bloc/onboarding/profile_setup_cubit.dart';
+import '../../../widgets/atoms/app_button.dart';
 import '../../../widgets/atoms/app_text_field.dart';
 
 class DisplayNameStep extends StatefulWidget {
@@ -35,33 +36,48 @@ class _DisplayNameStepState extends State<DisplayNameStep> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'What\'s your name?',
-            style: Theme.of(context).textTheme.headlineMedium,
+          Center(
+            child: Column(
+              children: [
+                Text(
+                  "What's your name?",
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'It will be shown on your profile and in messages.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge,
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'This is how you\'ll appear to others. You can skip.',
-            style: Theme.of(context).textTheme.bodyMedium,
+          Expanded(
+            child: Center(
+              child: SizedBox(
+                width: double.infinity,
+                child: AppTextField(
+                  controller: _controller,
+                  label: 'Display name',
+                  onChanged: (v) => context.read<ProfileSetupCubit>().setDisplayName(v),
+                ),
+              ),
+            ),
           ),
-          const SizedBox(height: 32),
-          AppTextField(
-            controller: _controller,
-            label: 'Display name',
-            onChanged: (v) => context.read<ProfileSetupCubit>().setDisplayName(v ?? ''),
-          ),
-          const Spacer(),
-          FilledButton(
+          AppButton(
+            label: 'Next',
             onPressed: () {
               context.read<ProfileSetupCubit>().setDisplayName(_controller.text.trim());
               widget.onNext();
             },
-            child: const Text('Next'),
           ),
           const SizedBox(height: 8),
           TextButton(

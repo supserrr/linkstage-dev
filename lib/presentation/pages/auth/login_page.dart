@@ -7,7 +7,7 @@ import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
 import '../../widgets/atoms/app_button.dart';
 import '../../widgets/atoms/app_text_field.dart';
-import '../../../core/constants/app_constants.dart';
+import '../../widgets/atoms/auth_sign_illustration.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/validators.dart';
 
@@ -53,26 +53,37 @@ class _LoginViewState extends State<_LoginView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 48),
-                Text(
-                  AppConstants.appName,
-                  style: Theme.of(context).textTheme.displaySmall,
-                  textAlign: TextAlign.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 56),
+            Expanded(
+              child: SizedBox.expand(
+                child: Center(
+                  child: AuthSignIllustration(height: 200),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Sign in to continue',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 48),
+              ),
+            ),
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 32),
+                    Text(
+                      'Welcome',
+                      style: Theme.of(context).textTheme.headlineLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Glad to see you!',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
                 AppTextField(
                   controller: _emailController,
                   label: 'Email',
@@ -111,30 +122,10 @@ class _LoginViewState extends State<_LoginView> {
                   },
                   builder: (context, state) {
                     final loading = state is AuthLoading;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        AppButton(
-                          label: 'Sign in',
-                          onPressed: _submit,
-                          isLoading: loading,
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          height: 48,
-                          child: OutlinedButton.icon(
-                            onPressed: loading
-                                ? null
-                                : () {
-                                    context.read<AuthBloc>().add(
-                                      AuthSignInWithGoogleRequested(),
-                                    );
-                                  },
-                            icon: const Icon(Icons.g_mobiledata, size: 24),
-                            label: const Text('Sign in with Google'),
-                          ),
-                        ),
-                      ],
+                    return AppButton(
+                      label: 'Sign in',
+                      onPressed: _submit,
+                      isLoading: loading,
                     );
                   },
                 ),
@@ -148,13 +139,15 @@ class _LoginViewState extends State<_LoginView> {
                     ),
                     TextButton(
                       onPressed: () => context.push(AppRoutes.register),
-                      child: const Text('Register'),
+                      child: const Text('Sign up'),
                     ),
                   ],
                 ),
-              ],
+                ],
+              ),
             ),
-          ),
+            ),
+          ],
         ),
       ),
     );

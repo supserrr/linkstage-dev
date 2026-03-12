@@ -20,7 +20,7 @@ class _UsernameStepState extends State<UsernameStep> {
   final _controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _checking = false;
-  String? _availabilityError;
+  bool? _isAvailable; // null = not checked, true = available, false = taken
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _UsernameStepState extends State<UsernameStep> {
     if (value.length < 3) return;
     setState(() {
       _checking = true;
-      _availabilityError = null;
+      _isAvailable = null;
     });
     final available = await context
         .read<ProfileSetupCubit>()
@@ -50,14 +50,14 @@ class _UsernameStepState extends State<UsernameStep> {
     if (mounted) {
       setState(() {
         _checking = false;
-        _availabilityError = available ? null : 'Username is taken';
+        _isAvailable = available;
       });
     }
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    if (_availabilityError != null) return;
+    if (_isAvailable != true) return;
     final value = _controller.text.trim();
     if (value.length < 3) return;
     context.read<ProfileSetupCubit>().setUsername(value);
@@ -66,6 +66,8 @@ class _UsernameStepState extends State<UsernameStep> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Form(
@@ -73,14 +75,22 @@ class _UsernameStepState extends State<UsernameStep> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Choose your username',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'This will be your unique handle. 3-20 characters, letters, numbers, underscore.',
-              style: Theme.of(context).textTheme.bodyMedium,
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    'Choose your username',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '3-20 characters. Letters, numbers, underscore only.',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 32),
             TextFormField(
@@ -93,9 +103,7 @@ class _UsernameStepState extends State<UsernameStep> {
               autofocus: true,
               textCapitalization: TextCapitalization.none,
               autocorrect: false,
-              onChanged: (_) {
-                setState(() => _availabilityError = null);
-              },
+              onChanged: (_) => setState(() => _isAvailable = null),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) {
                   return 'Username is required';
@@ -106,37 +114,61 @@ class _UsernameStepState extends State<UsernameStep> {
                 if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(v.trim())) {
                   return 'Letters, numbers, underscore only';
                 }
-                return _availabilityError;
+                return null;
               },
             ),
-            if (_checking)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: SizedBox(
-                  height: 20,
-                  child: LinearProgressIndicator(),
-                ),
-              )
-            else if (_availabilityError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  _availabilityError!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: OutlinedButton.icon(
+                onPressed: _checking || _controller.text.trim().length < 3
+                    ? null
+                    : _checkAvailability,
+                icon: _checking
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.primary,
+                        ),
+                      )
+                    : Icon(Icons.search, size: 20, color: theme.colorScheme.primary),
+                label: Text(_checking ? 'Checking...' : 'Check availability'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: theme.colorScheme.primary,
                 ),
               ),
-            const SizedBox(height: 16),
-            TextButton.icon(
-              onPressed: _checking ? null : _checkAvailability,
-              icon: const Icon(Icons.check_circle_outline, size: 18),
-              label: const Text('Check availability'),
             ),
+            if (!_checking && _isAvailable != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(
+                    _isAvailable! ? Icons.check_circle : Icons.cancel,
+                    size: 20,
+                    color: _isAvailable!
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.error,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _isAvailable! ? 'Username is available' : 'Username is taken',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: _isAvailable!
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.error,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const Spacer(),
             AppButton(
               label: 'Next',
-              onPressed: _submit,
+              onPressed: _isAvailable == true ? _submit : null,
             ),
           ],
         ),

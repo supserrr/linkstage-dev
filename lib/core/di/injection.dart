@@ -19,6 +19,7 @@ import '../../domain/usecases/user/change_username_usecase.dart';
 import '../../domain/usecases/user/upsert_user_usecase.dart';
 import '../../presentation/bloc/auth/auth_bloc.dart';
 import '../../presentation/bloc/onboarding/onboarding_cubit.dart';
+import '../../presentation/bloc/onboarding/profile_setup_draft_storage.dart';
 import '../../presentation/bloc/settings/settings_cubit.dart';
 import '../router/auth_redirect.dart';
 
@@ -78,6 +79,9 @@ Future<void> initInjection() async {
   final prefs = await SharedPreferences.getInstance();
   sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit(prefs));
   sl.registerLazySingleton<OnboardingCubit>(() => OnboardingCubit(prefs));
+  sl.registerLazySingleton<ProfileSetupDraftStorage>(
+    () => ProfileSetupDraftStorage(prefs),
+  );
 
   // Router refresh (must be registered after AuthRepository)
   sl.registerLazySingleton<AuthRedirectNotifier>(

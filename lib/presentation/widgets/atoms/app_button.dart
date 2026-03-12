@@ -16,6 +16,7 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      width: double.infinity,
       height: 48,
       child: FilledButton(
         onPressed: isLoading ? null : onPressed,

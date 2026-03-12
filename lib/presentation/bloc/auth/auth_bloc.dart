@@ -63,11 +63,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
     try {
-      final user = await _registerWithEmail(
-        event.email,
-        event.password,
-        event.displayName,
-      );
+      final user = await _registerWithEmail(event.email, event.password);
       emit(AuthAuthenticated(user));
     } catch (e) {
       emit(AuthError(_authErrorMessage(e)));

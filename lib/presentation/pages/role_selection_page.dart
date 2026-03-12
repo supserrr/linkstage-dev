@@ -4,11 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../bloc/role_selection/role_selection_cubit.dart';
 import '../bloc/role_selection/role_selection_state.dart';
-import '../../core/constants/app_constants.dart';
 import '../../core/di/injection.dart';
 import '../../core/router/app_router.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/user/upsert_user_usecase.dart';
+import '../widgets/atoms/app_button.dart';
+import '../widgets/atoms/app_logo.dart';
 
 /// Role selection after registration (Event Planner vs Creative Professional).
 class RoleSelectionPage extends StatelessWidget {
@@ -33,47 +34,101 @@ class RoleSelectionPage extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Choose your role')),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
+          return _RoleSelectionView(user: user);
+        },
+      ),
+    );
+  }
+}
+
+class _RoleSelectionView extends StatefulWidget {
+  const _RoleSelectionView({required this.user});
+
+  final UserEntity user;
+
+  @override
+  State<_RoleSelectionView> createState() => _RoleSelectionViewState();
+}
+
+class _RoleSelectionViewState extends State<_RoleSelectionView> {
+  UserRole? _selectedRole;
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<RoleSelectionCubit>().state;
+    final user = widget.user;
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Center(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    AppLogo(height: 96),
                     const SizedBox(height: 24),
                     Text(
-                      'How will you use ${AppConstants.appName}?',
+                      'Choose your role below',
                       style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 32),
-                    _RoleCard(
-                      title: 'Event Planner',
-                      description:
-                          'Find and book creative professionals for your events',
-                      icon: Icons.event,
-                      isLoading: state.status == RoleSelectionStatus.loading,
-                      onTap: () => context
-                          .read<RoleSelectionCubit>()
-                          .selectRole(user, UserRole.eventPlanner),
-                    ),
-                    const SizedBox(height: 16),
-                    _RoleCard(
-                      title: 'Creative Professional',
-                      description:
-                          'Showcase your work and get booked for events',
-                      icon: Icons.palette,
-                      isLoading: state.status == RoleSelectionStatus.loading,
-                      onTap: () => context
-                          .read<RoleSelectionCubit>()
-                          .selectRole(user, UserRole.creativeProfessional),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
             ),
-          );
-        },
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 32),
+                    _RoleCard(
+                      title: 'Event Planner',
+                      isSelected: _selectedRole == UserRole.eventPlanner,
+                      onTap: () => setState(() => _selectedRole = UserRole.eventPlanner),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'or',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    _RoleCard(
+                      title: 'Creative Professional',
+                      isSelected: _selectedRole == UserRole.creativeProfessional,
+                      onTap: () => setState(
+                        () => _selectedRole = UserRole.creativeProfessional,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: AppButton(
+                label: 'Get started',
+                onPressed: _selectedRole == null || state.status == RoleSelectionStatus.loading
+                    ? null
+                    : () => context
+                        .read<RoleSelectionCubit>()
+                        .selectRole(user, _selectedRole!),
+                isLoading: state.status == RoleSelectionStatus.loading,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -82,56 +137,45 @@ class RoleSelectionPage extends StatelessWidget {
 class _RoleCard extends StatelessWidget {
   const _RoleCard({
     required this.title,
-    required this.description,
-    required this.icon,
     required this.onTap,
-    this.isLoading = false,
+    this.isSelected = false,
   });
 
   final String title;
-  final String description;
-  final IconData icon;
   final VoidCallback onTap;
-  final bool isLoading;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final colorScheme = Theme.of(context).colorScheme;
+    final backgroundColor =
+        isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest;
+    final foregroundColor =
+        isSelected ? colorScheme.onPrimary : colorScheme.onSurface;
+
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
-        onTap: isLoading ? null : onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                size: 48,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              if (isLoading)
-                const SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else
-                const Icon(Icons.arrow_forward_ios, size: 16),
-            ],
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: foregroundColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
           ),
         ),
       ),

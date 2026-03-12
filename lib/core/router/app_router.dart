@@ -70,6 +70,12 @@ class AppRouter {
             state.matchedLocation == AppRoutes.onboardingIntro;
         final isProfileSetupRoute =
             state.matchedLocation == AppRoutes.profileSetup;
+        final isAppRoute =
+            state.matchedLocation == AppRoutes.home ||
+            state.matchedLocation == AppRoutes.search ||
+            state.matchedLocation == AppRoutes.messages ||
+            state.matchedLocation == AppRoutes.bookings ||
+            state.matchedLocation.startsWith(AppRoutes.profile);
 
         if (state.matchedLocation == AppRoutes.splash) {
           if (!splashNotifier.isComplete) return null;
@@ -99,6 +105,13 @@ class AppRouter {
           if (authNotifier.needsProfileSetup &&
               !isProfileSetupRoute &&
               state.matchedLocation != AppRoutes.roleSelection) {
+            return AppRoutes.profileSetup;
+          }
+          if (isAppRoute &&
+              (authNotifier.needsRoleSelection || authNotifier.needsProfileSetup)) {
+            if (authNotifier.needsRoleSelection) {
+              return AppRoutes.roleSelection;
+            }
             return AppRoutes.profileSetup;
           }
         }

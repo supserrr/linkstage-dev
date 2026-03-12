@@ -12,11 +12,12 @@ abstract class AuthRepository {
   Future<UserEntity> signInWithEmail(String email, String password);
 
   /// Register with email and password.
+  /// [displayName] optional; falls back to email local part if omitted.
   Future<UserEntity> registerWithEmail(
     String email,
-    String password,
-    String displayName,
-  );
+    String password, [
+    String? displayName,
+  ]);
 
   /// Sign in with Google.
   Future<UserEntity> signInWithGoogle();

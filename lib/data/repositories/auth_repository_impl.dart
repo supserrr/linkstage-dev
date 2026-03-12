@@ -22,9 +22,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity> registerWithEmail(
     String email,
-    String password,
-    String displayName,
-  ) {
+    String password, [
+    String? displayName,
+  ]) {
     return _remote.registerWithEmail(email, password, displayName);
   }
 

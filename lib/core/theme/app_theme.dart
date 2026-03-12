@@ -30,10 +30,16 @@ class AppTheme {
       textTheme: _textTheme,
       appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -65,10 +71,16 @@ class AppTheme {
       textTheme: _textTheme,
       appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(minimumSize: const Size(48, 48)),

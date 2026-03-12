@@ -31,9 +31,9 @@ class AuthRemoteDataSource {
 
   Future<UserEntity> registerWithEmail(
     String email,
-    String password,
-    String displayName,
-  ) async {
+    String password, [
+    String? displayName,
+  ]) async {
     final cred = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -45,7 +45,10 @@ class AuthRemoteDataSource {
         message: 'Registration failed',
       );
     }
-    await user.updateDisplayName(displayName);
+    final name = displayName?.trim().isNotEmpty == true
+        ? displayName!
+        : email.split('@').first;
+    await user.updateDisplayName(name);
     return _userFromFirebase(user)!;
   }
 

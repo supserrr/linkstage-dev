@@ -15,9 +15,10 @@ class ProfileSetupCubit extends Cubit<ProfileSetupState> {
     this._user,
     this._upsertUser,
     this._profileRepository,
-    this._userRepository,
-  ) : super(ProfileSetupState.initial()) {
-    _loadInitial();
+    this._userRepository, {
+    ProfileSetupState? initialDraft,
+  }) : super(ProfileSetupState.initial()) {
+    _loadInitial(initialDraft);
   }
 
   final UserEntity _user;
@@ -25,7 +26,11 @@ class ProfileSetupCubit extends Cubit<ProfileSetupState> {
   final ProfileRepository _profileRepository;
   final UserRepository _userRepository;
 
-  void _loadInitial() {
+  void _loadInitial([ProfileSetupState? draft]) {
+    if (draft != null) {
+      emit(draft);
+      return;
+    }
     emit(state.copyWith(
       displayName: _user.displayName ?? '',
       isLoading: false,

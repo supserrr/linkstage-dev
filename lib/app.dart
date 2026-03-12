@@ -16,10 +16,12 @@ class LinkStageApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<AuthBloc>(
       create: (_) => sl<AuthBloc>(),
-      child: BlocBuilder<SettingsCubit, SettingsState>(
-        bloc: sl<SettingsCubit>(),
-        builder: (context, settings) {
-          return MaterialApp.router(
+      child: BlocProvider<SettingsCubit>.value(
+        value: sl<SettingsCubit>(),
+        child: BlocBuilder<SettingsCubit, SettingsState>(
+          bloc: sl<SettingsCubit>(),
+          builder: (context, settings) {
+            return MaterialApp.router(
             title: 'LinkStage',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
@@ -27,7 +29,8 @@ class LinkStageApp extends StatelessWidget {
             themeMode: settings.themeMode,
             routerConfig: AppRouter.router,
           );
-        },
+          },
+        ),
       ),
     );
   }
