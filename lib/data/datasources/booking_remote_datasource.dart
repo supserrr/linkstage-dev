@@ -12,6 +12,8 @@ class BookingRemoteDataSource {
 
   static const String _bookingsCollection = 'bookings';
 
+  static const String _statusCompleted = 'completed';
+
   /// Fetch completed bookings for a creative (for total gigs count).
   Future<List<BookingEntity>> getCompletedBookingsByCreativeId(
     String creativeId,
@@ -19,10 +21,10 @@ class BookingRemoteDataSource {
     final snapshot = await _firestore
         .collection(_bookingsCollection)
         .where('creativeId', isEqualTo: creativeId)
+        .where('status', isEqualTo: _statusCompleted)
         .get();
     return snapshot.docs
         .map((d) => BookingModel.fromFirestore(d).toEntity())
-        .where((b) => b.status == BookingStatus.completed)
         .toList();
   }
 
@@ -33,10 +35,10 @@ class BookingRemoteDataSource {
     final snapshot = await _firestore
         .collection(_bookingsCollection)
         .where('plannerId', isEqualTo: plannerId)
+        .where('status', isEqualTo: _statusCompleted)
         .get();
     return snapshot.docs
         .map((d) => BookingModel.fromFirestore(d).toEntity())
-        .where((b) => b.status == BookingStatus.completed)
         .toList();
   }
 }

@@ -1,3 +1,4 @@
+import '../../domain/entities/profile_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_remote_datasource.dart';
@@ -29,6 +30,22 @@ class UserRepositoryImpl implements UserRepository {
     DateTime lastUsernameChangeAt,
   ) =>
       _remote.updateUsername(userId, newUsername, lastUsernameChangeAt);
+
+  @override
+  Future<void> changeUsernameAtomic(
+    String userId,
+    String newUsername,
+    String? oldUsername,
+    ProfileEntity newProfileData,
+    DateTime lastUsernameChangeAt,
+  ) =>
+      _remote.changeUsernameAtomic(
+        userId,
+        newUsername,
+        oldUsername,
+        newProfileData,
+        lastUsernameChangeAt,
+      );
 
   @override
   Stream<UserEntity?> watchUser(String userId) => _remote.watchUser(userId);

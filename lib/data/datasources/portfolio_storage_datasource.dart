@@ -24,7 +24,7 @@ class PortfolioStorageDataSource {
     String userId, {
     required bool isVideo,
   }) async {
-    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken(true);
     if (token == null) {
       throw Exception('Not authenticated');
     }
@@ -63,7 +63,7 @@ class PortfolioStorageDataSource {
   /// Uploads a profile photo and returns its public URL.
   /// Path: users/{uid}/profile/avatar.{ext} (overwrites previous).
   Future<String> uploadProfilePhoto(XFile file, String userId) async {
-    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken(true);
     if (token == null) {
       throw Exception('Not authenticated');
     }

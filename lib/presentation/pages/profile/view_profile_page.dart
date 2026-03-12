@@ -41,9 +41,13 @@ class ViewProfilePage extends StatelessWidget {
           sl<BookingRepository>(),
           user.id,
         ),
-        child: _ViewProfileScaffold(
-          editRoute: AppRoutes.creativeProfile,
-          child: const _CreativeProfileView(),
+        child: Builder(
+          builder: (ctx) => _ViewProfileScaffold(
+            editRoute: AppRoutes.creativeProfile,
+            onReturnFromEdit: () =>
+                ctx.read<CreativeProfileCubit>().refresh(),
+            child: const _CreativeProfileView(),
+          ),
         ),
       );
     }
@@ -56,9 +60,13 @@ class ViewProfilePage extends StatelessWidget {
           sl<ProfileRepository>(),
           user.id,
         ),
-        child: _ViewProfileScaffold(
-          editRoute: AppRoutes.plannerProfile,
-          child: const _PlannerProfileView(),
+        child: Builder(
+          builder: (ctx) => _ViewProfileScaffold(
+            editRoute: AppRoutes.plannerProfile,
+            onReturnFromEdit: () =>
+                ctx.read<PlannerProfileCubit>().refresh(),
+            child: const _PlannerProfileView(),
+          ),
         ),
       );
     }
@@ -73,10 +81,12 @@ class _ViewProfileScaffold extends StatelessWidget {
   const _ViewProfileScaffold({
     required this.editRoute,
     required this.child,
+    this.onReturnFromEdit,
   });
 
   final String editRoute;
   final Widget child;
+  final VoidCallback? onReturnFromEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +96,12 @@ class _ViewProfileScaffold extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            onPressed: () => context.push(editRoute),
+            onPressed: () async {
+              await context.push(editRoute);
+              if (context.mounted) {
+                onReturnFromEdit?.call();
+              }
+            },
           ),
         ],
       ),
@@ -109,10 +124,16 @@ class _CreativeProfileView extends StatelessWidget {
         if (profile == null) {
           return const Center(child: Text('Profile not found'));
         }
+        final authNotifier = sl<AuthRedirectNotifier>();
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _ProfilePhoto(photoUrl: sl<AuthRedirectNotifier>().user?.photoUrl),
+            ListenableBuilder(
+              listenable: authNotifier,
+              builder: (context, _) => _ProfilePhoto(
+                photoUrl: authNotifier.user?.photoUrl,
+              ),
+            ),
             const SizedBox(height: 16),
             Text(
               profile.displayName ?? 'Creative Professional',
@@ -253,10 +274,16 @@ class _PlannerProfileView extends StatelessWidget {
         if (user == null) {
           return const Center(child: Text('User not found'));
         }
+        final authNotifier = sl<AuthRedirectNotifier>();
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _ProfilePhoto(photoUrl: user.photoUrl),
+            ListenableBuilder(
+              listenable: authNotifier,
+              builder: (context, _) => _ProfilePhoto(
+                photoUrl: authNotifier.user?.photoUrl,
+              ),
+            ),
             const SizedBox(height: 16),
             Text(
               user.displayName ?? 'Event Planner',

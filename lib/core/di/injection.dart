@@ -122,5 +122,7 @@ Future<void> initInjection() async {
       sl<ProfileRepository>(),
     ),
   );
-  sl.registerLazySingleton<SplashNotifier>(SplashNotifier.new);
+  sl.registerLazySingleton<SplashNotifier>(
+    () => SplashNotifier(sl<AuthRedirectNotifier>()),
+  );
 }

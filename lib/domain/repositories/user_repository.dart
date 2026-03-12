@@ -1,3 +1,4 @@
+import '../entities/profile_entity.dart';
 import '../entities/user_entity.dart';
 
 /// Abstract contract for user document operations.
@@ -19,6 +20,16 @@ abstract class UserRepository {
   Future<void> updateUsername(
     String userId,
     String newUsername,
+    DateTime lastUsernameChangeAt,
+  );
+
+  /// Atomically change username: check availability, create new profile,
+  /// delete old profile, update users. Prevents TOCTOU race.
+  Future<void> changeUsernameAtomic(
+    String userId,
+    String newUsername,
+    String? oldUsername,
+    ProfileEntity newProfileData,
     DateTime lastUsernameChangeAt,
   );
 

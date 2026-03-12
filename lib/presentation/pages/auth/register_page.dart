@@ -62,14 +62,19 @@ class _RegisterViewState extends State<_RegisterView> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 24),
-              Center(child: AuthSignIllustration()),
-              Padding(
-                padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 24),
+            Expanded(
+              child: SizedBox.expand(
+                child: Center(
+                  child: AuthSignIllustration(),
+                ),
+              ),
+            ),
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -158,9 +163,8 @@ class _RegisterViewState extends State<_RegisterView> {
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

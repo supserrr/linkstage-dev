@@ -61,17 +61,17 @@ class ChangeUsernameUseCase {
         return ChangeUsernameCooldown(nextAllowed);
       }
     }
-    final available = await _userRepository.checkUsernameAvailable(
-      newUsername,
-      excludeUserId: user.id,
-    );
-    if (!available) return ChangeUsernameTaken();
-
     final normalized = newUsername.toLowerCase();
     final currentUsername = user.username;
     if (currentUsername != null && currentUsername.toLowerCase() == normalized) {
       return ChangeUsernameInvalid('This is already your username.');
     }
+
+    final available = await _userRepository.checkUsernameAvailable(
+      newUsername,
+      excludeUserId: user.id,
+    );
+    if (!available) return ChangeUsernameTaken();
 
     final profile = await _profileRepository.getProfileByUserId(user.id);
     if (profile == null) {
@@ -91,13 +91,18 @@ class ChangeUsernameUseCase {
       reviewCount: profile.reviewCount,
       displayName: profile.displayName,
     );
-    await _profileRepository.upsertProfile(newProfile);
 
-    if (currentUsername != null && currentUsername.isNotEmpty) {
-      await _profileRepository.deleteProfile(currentUsername);
+    try {
+      await _userRepository.changeUsernameAtomic(
+        user.id,
+        normalized,
+        currentUsername,
+        newProfile,
+        now,
+      );
+    } on StateError {
+      return ChangeUsernameTaken();
     }
-
-    await _userRepository.updateUsername(user.id, normalized, now);
 
     return ChangeUsernameSuccess();
   }

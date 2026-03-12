@@ -50,7 +50,6 @@ class AuthRemoteDataSource {
         ? displayName!
         : email.split('@').first;
     await user.updateDisplayName(name);
-    await Future.delayed(const Duration(seconds: 2));
     await user.getIdToken(true);
     return _userFromFirebase(user)!;
   }

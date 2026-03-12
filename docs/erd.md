@@ -179,9 +179,14 @@ erDiagram
 
 Portfolio media (images and videos) are stored in Supabase Storage at `users/{userId}/portfolio/images/` and `users/{userId}/portfolio/videos/`. Profile documents in Firestore store the resulting public URLs in `portfolioUrls` and `portfolioVideoUrls`.
 
+Uploads go through the `portfolio-upload` Edge Function, which verifies the Firebase ID token before writing. Ensure Supabase storage policies (RLS) restrict direct client writes; the Edge Function should use the service role for storage writes.
+
 ## Composite Indexes
 
 Defined in `firestore.indexes.json`:
 
-- profiles: category + location, category + rating
-- bookings: creativeId + status, plannerId + status
+- events: plannerId (ASC) + date (DESC)
+- bookings: creativeId (ASC) + status (ASC)
+- bookings: plannerId (ASC) + status (ASC)
+- profiles: category (ASC) + location (ASC)
+- profiles: category (ASC) + rating (DESC)

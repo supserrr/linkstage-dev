@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/entities/entity_extensions.dart';
+import '../../domain/entities/profile_entity.dart';
 import '../../domain/entities/user_entity.dart';
+import '../models/profile_model.dart';
 import '../models/user_model.dart';
 
 /// Remote data source for user documents in Firestore.
@@ -62,6 +64,60 @@ class UserRemoteDataSource {
     await _firestore.collection(_usersCollection).doc(userId).update({
       'username': newUsername.toLowerCase(),
       'lastUsernameChangeAt': Timestamp.fromDate(lastUsernameChangeAt),
+    });
+  }
+
+  /// Atomically change username: check availability, create new profile,
+  /// delete old profile, update users. Prevents TOCTOU race.
+  Future<void> changeUsernameAtomic(
+    String userId,
+    String newUsername,
+    String? oldUsername,
+    ProfileEntity newProfileData,
+    DateTime lastUsernameChangeAt,
+  ) async {
+    final normalized = newUsername.toLowerCase();
+    final oldNormalized = oldUsername?.toLowerCase();
+    final model = ProfileModel(
+      id: normalized,
+      userId: newProfileData.userId,
+      username: normalized,
+      bio: newProfileData.bio,
+      category: newProfileData.category,
+      priceRange: newProfileData.priceRange,
+      location: newProfileData.location,
+      portfolioUrls: newProfileData.portfolioUrls,
+      portfolioVideoUrls: newProfileData.portfolioVideoUrls,
+      availability: newProfileData.availability,
+      services: newProfileData.services,
+      languages: newProfileData.languages,
+      professions: newProfileData.professions,
+      rating: newProfileData.rating,
+      reviewCount: newProfileData.reviewCount,
+      displayName: newProfileData.displayName,
+    );
+    await _firestore.runTransaction((transaction) async {
+      final newProfileRef =
+          _firestore.collection(_profilesCollection).doc(normalized);
+      final newDoc = await transaction.get(newProfileRef);
+      if (newDoc.exists) {
+        final data = newDoc.data();
+        final docUserId = data?['userId'] as String?;
+        if (docUserId != userId) {
+          throw StateError('Username $normalized is already taken');
+        }
+      }
+      transaction.set(newProfileRef, model.toFirestore(), SetOptions(merge: true));
+      if (oldNormalized != null && oldNormalized.isNotEmpty) {
+        final oldProfileRef =
+            _firestore.collection(_profilesCollection).doc(oldNormalized);
+        transaction.delete(oldProfileRef);
+      }
+      final userRef = _firestore.collection(_usersCollection).doc(userId);
+      transaction.update(userRef, {
+        'username': normalized,
+        'lastUsernameChangeAt': Timestamp.fromDate(lastUsernameChangeAt),
+      });
     });
   }
 

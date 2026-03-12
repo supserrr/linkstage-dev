@@ -13,11 +13,13 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
     this._reviewRepository,
     this._bookingRepository,
     String userId,
-  ) : super(const CreativeProfileState()) {
+  ) : _userId = userId,
+       super(const CreativeProfileState()) {
     load(userId);
   }
 
   final ProfileRepository _profileRepository;
+  final String _userId;
   final ReviewRepository _reviewRepository;
   final BookingRepository _bookingRepository;
 
@@ -276,6 +278,9 @@ class CreativeProfileCubit extends Cubit<CreativeProfileState> {
       ));
     }
   }
+
+  /// Reload profile and related data (e.g. after returning from edit).
+  Future<void> refresh() => load(_userId);
 
   Future<void> save() async {
     final p = state.profile;

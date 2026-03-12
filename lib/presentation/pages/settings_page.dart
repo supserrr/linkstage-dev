@@ -30,16 +30,19 @@ class _SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = sl<AuthRedirectNotifier>().user;
-    final role = user?.role;
-
+    final authNotifier = sl<AuthRedirectNotifier>();
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
-      body: BlocBuilder<SettingsCubit, SettingsState>(
-        builder: (context, state) {
-          return ListView(
-            children: [
-              _ViewProfileSection(user: user, role: role),
+      body: ListenableBuilder(
+        listenable: authNotifier,
+        builder: (context, _) {
+          final user = authNotifier.user;
+          final role = user?.role;
+          return BlocBuilder<SettingsCubit, SettingsState>(
+            builder: (context, state) {
+              return ListView(
+                children: [
+                  _ViewProfileSection(user: user, role: role),
               const Divider(),
               _SectionHeader(title: 'Account Settings'),
               ListTile(
@@ -134,6 +137,8 @@ class _SettingsView extends StatelessWidget {
                 },
               ),
             ],
+          );
+            },
           );
         },
       ),

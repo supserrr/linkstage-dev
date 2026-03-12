@@ -27,19 +27,49 @@ class OnboardingListenable extends ChangeNotifier {
   }
 }
 
-/// Notifier that completes after a minimum display duration (e.g. for splash).
+/// Notifier that completes when auth is ready and minimum display duration has
+/// passed (event-driven splash).
 class SplashNotifier extends ChangeNotifier {
-  SplashNotifier() {
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (!_isComplete) {
-        _isComplete = true;
-        notifyListeners();
-      }
-    });
+  SplashNotifier(this._authNotifier) {
+    _authNotifier.addListener(_onAuthUpdate);
+    Future.delayed(
+      const Duration(milliseconds: 800),
+      _onMinDurationPassed,
+    );
+    _onAuthUpdate();
   }
 
+  final AuthRedirectNotifier _authNotifier;
+
   bool _isComplete = false;
+  bool _minDurationPassed = false;
+  bool _authReady = false;
+
   bool get isComplete => _isComplete;
+
+  void _onMinDurationPassed() {
+    _minDurationPassed = true;
+    _tryComplete();
+  }
+
+  void _onAuthUpdate() {
+    _authReady = _authNotifier.isReady;
+    _tryComplete();
+  }
+
+  void _tryComplete() {
+    if (!_isComplete && _minDurationPassed && _authReady) {
+      _isComplete = true;
+      _authNotifier.removeListener(_onAuthUpdate);
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _authNotifier.removeListener(_onAuthUpdate);
+    super.dispose();
+  }
 }
 
 /// Notifier for router refresh when auth state changes.
