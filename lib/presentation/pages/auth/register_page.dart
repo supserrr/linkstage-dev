@@ -34,6 +34,7 @@ class _RegisterViewState extends State<_RegisterView> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _keyboardWasVisible = false;
 
   @override
   void initState() {
@@ -54,7 +55,18 @@ class _RegisterViewState extends State<_RegisterView> {
   }
 
   void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+      return;
+    }
     context.read<AuthBloc>().add(
       AuthRegisterRequested(
         email: _emailController.text.trim(),
@@ -65,6 +77,20 @@ class _RegisterViewState extends State<_RegisterView> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    if (_keyboardWasVisible && !keyboardVisible) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+    _keyboardWasVisible = keyboardVisible;
+
     final screenHeight = MediaQuery.sizeOf(context).height;
     final illustrationFullHeight = (screenHeight * 0.32).clamp(120.0, 240.0);
     final scrollOffset = _scrollController.hasClients
@@ -83,10 +109,14 @@ class _RegisterViewState extends State<_RegisterView> {
       body: SafeArea(
         child: Stack(
           children: [
-            SingleChildScrollView(
-              controller: _scrollController,
-              padding: const EdgeInsets.only(top: 16),
-              child: Column(
+            Positioned.fill(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                padding: EdgeInsets.only(
+                  top: 16,
+                  bottom: 24 + MediaQuery.paddingOf(context).bottom,
+                ),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(height: illustrationFullHeight),
@@ -185,6 +215,7 @@ class _RegisterViewState extends State<_RegisterView> {
                   ),
                 ],
               ),
+            ),
             ),
             if (illustrationHeight > 0)
               Positioned(

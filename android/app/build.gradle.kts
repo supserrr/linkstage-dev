@@ -45,3 +45,8 @@ android {
 flutter {
     source = "../.."
 }
+
+// Show detailed deprecation warnings (Java)
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xlint:deprecation")
+}

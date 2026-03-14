@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -24,7 +25,6 @@ import '../../presentation/pages/onboarding/profile_setup_flow_page.dart';
 import '../../presentation/pages/onboarding/onboarding_intro_page.dart';
 import '../../presentation/pages/role_selection_page.dart';
 import '../../presentation/pages/search_page.dart';
-import '../../presentation/pages/splash_page.dart';
 import '../../presentation/widgets/organisms/bottom_nav_shell.dart';
 
 /// App route names.
@@ -93,19 +93,28 @@ class AppRouter {
             state.matchedLocation == AppRoutes.myEvents ||
             state.matchedLocation.startsWith(AppRoutes.profile);
 
+        // On iOS, use the same flow as Android: no onboarding intro, role selection, or
+        // profile setup — go straight to login or home so both platforms show the same screens.
+        final bool alignWithAndroid =
+            !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
         if (state.matchedLocation == AppRoutes.splash) {
           if (!splashNotifier.isComplete) return null;
-          if (!onboardingListenable.introComplete) {
+          if (!alignWithAndroid && !onboardingListenable.introComplete) {
             return AppRoutes.onboardingIntro;
           }
           if (!isAuthenticated) return AppRoutes.login;
           if (!authNotifier.isReady) return null;
-          if (authNotifier.needsRoleSelection) return AppRoutes.roleSelection;
-          if (authNotifier.needsProfileSetup) return AppRoutes.profileSetup;
+          if (!alignWithAndroid && authNotifier.needsRoleSelection) {
+            return AppRoutes.roleSelection;
+          }
+          if (!alignWithAndroid && authNotifier.needsProfileSetup) {
+            return AppRoutes.profileSetup;
+          }
           return AppRoutes.home;
         }
         if (isOnboardingRoute) {
-          if (onboardingListenable.introComplete) {
+          if (alignWithAndroid || onboardingListenable.introComplete) {
             return isAuthenticated ? AppRoutes.home : AppRoutes.login;
           }
           return null;
@@ -114,16 +123,19 @@ class AppRouter {
           return AppRoutes.login;
         }
         if (isAuthenticated && authNotifier.isReady) {
-          if (authNotifier.needsRoleSelection &&
+          if (!alignWithAndroid &&
+              authNotifier.needsRoleSelection &&
               !state.matchedLocation.contains('role-selection')) {
             return AppRoutes.roleSelection;
           }
-          if (authNotifier.needsProfileSetup &&
+          if (!alignWithAndroid &&
+              authNotifier.needsProfileSetup &&
               !isProfileSetupRoute &&
               state.matchedLocation != AppRoutes.roleSelection) {
             return AppRoutes.profileSetup;
           }
-          if (isAppRoute &&
+          if (!alignWithAndroid &&
+              isAppRoute &&
               (authNotifier.needsRoleSelection || authNotifier.needsProfileSetup)) {
             if (authNotifier.needsRoleSelection) {
               return AppRoutes.roleSelection;
@@ -137,7 +149,9 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.splash,
           name: 'splash',
-          builder: (context, state) => const SplashPage(),
+          builder: (context, state) => const Scaffold(
+            body: Center(child: SizedBox.shrink()),
+          ),
         ),
         GoRoute(
           path: AppRoutes.login,

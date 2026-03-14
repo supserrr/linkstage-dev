@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/router/auth_redirect.dart';
@@ -14,6 +15,9 @@ class BottomNavShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final backgroundColor = theme.scaffoldBackgroundColor;
     return ListenableBuilder(
       listenable: sl<AuthRedirectNotifier>(),
       builder: (context, _) {
@@ -21,36 +25,57 @@ class BottomNavShell extends StatelessWidget {
         final activityLabel = role == UserRole.eventPlanner ? 'My Events' : 'My Gigs';
         return Scaffold(
           body: navigationShell,
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (index) => navigationShell.goBranch(index),
-            destinations: [
-              const NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
-                label: 'Home',
+          bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border(
+                top: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
+                ),
               ),
-              const NavigationDestination(
-                icon: Icon(Icons.search_outlined),
-                selectedIcon: Icon(Icons.search),
-                label: 'Search',
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: GNav(
+                  selectedIndex: navigationShell.currentIndex,
+                  onTabChange: (index) => navigationShell.goBranch(index),
+                  rippleColor: colorScheme.surfaceContainerHighest,
+                  hoverColor: colorScheme.surfaceContainerHigh,
+                  gap: 8,
+                  activeColor: colorScheme.onPrimaryContainer,
+                  iconSize: 24,
+                  tabBackgroundColor: colorScheme.primaryContainer,
+                  color: colorScheme.onSurfaceVariant,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  tabs: [
+                    GButton(
+                      icon: Icons.home_outlined,
+                      text: 'Home',
+                    ),
+                    GButton(
+                      icon: Icons.search,
+                      text: 'Search',
+                    ),
+                    GButton(
+                      icon: Icons.message_outlined,
+                      text: 'Messages',
+                    ),
+                    GButton(
+                      icon: Icons.event_outlined,
+                      text: activityLabel,
+                    ),
+                    GButton(
+                      icon: Icons.settings_outlined,
+                      text: 'Settings',
+                    ),
+                  ],
+                ),
               ),
-              const NavigationDestination(
-                icon: Icon(Icons.message_outlined),
-                selectedIcon: Icon(Icons.message),
-                label: 'Messages',
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.event_outlined),
-                selectedIcon: const Icon(Icons.event),
-                label: activityLabel,
-              ),
-              const NavigationDestination(
-                icon: Icon(Icons.settings_outlined),
-                selectedIcon: Icon(Icons.settings),
-                label: 'Settings',
-              ),
-            ],
+            ),
           ),
         );
       },

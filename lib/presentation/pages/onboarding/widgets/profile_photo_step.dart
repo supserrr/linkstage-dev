@@ -10,13 +10,36 @@ import '../../../bloc/onboarding/profile_setup_cubit.dart';
 import '../../../bloc/onboarding/profile_setup_state.dart';
 import '../../../widgets/atoms/app_button.dart';
 
-class ProfilePhotoStep extends StatelessWidget {
+class ProfilePhotoStep extends StatefulWidget {
   const ProfilePhotoStep({
     super.key,
     required this.onNext,
   });
 
   final VoidCallback onNext;
+
+  @override
+  State<ProfilePhotoStep> createState() => _ProfilePhotoStepState();
+}
+
+class _ProfilePhotoStepState extends State<ProfilePhotoStep> {
+  final _scrollController = ScrollController();
+  bool _keyboardWasVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() => setState(() {});
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage(BuildContext context) async {
     final picker = ImagePicker();
@@ -35,6 +58,28 @@ class ProfilePhotoStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    if (_keyboardWasVisible && !keyboardVisible) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+    _keyboardWasVisible = keyboardVisible;
+
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final illustrationFullHeight = (screenHeight * 0.46).clamp(200.0, 360.0);
+    final scrollOffset = _scrollController.hasClients
+        ? _scrollController.offset
+        : 0.0;
+    final illustrationHeight =
+        (illustrationFullHeight - scrollOffset).clamp(0.0, illustrationFullHeight);
+
     return BlocConsumer<ProfileSetupCubit, ProfileSetupState>(
       listenWhen: (a, b) => a.photoUploadError != b.photoUploadError,
       listener: (context, state) {
@@ -50,143 +95,166 @@ class ProfilePhotoStep extends StatelessWidget {
         final isUploadingPhoto = state.isUploadingPhoto;
         final hasPhoto = photoFile != null || photoUrl != null;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        return Stack(
           children: [
-            Expanded(
-              child: Center(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isDark =
-                        Theme.of(context).brightness == Brightness.dark;
-                    final asset = isDark
-                        ? 'assets/images/profile_page_illustration_dark.svg'
-                        : 'assets/images/profile_page_illustration_light.svg';
-                    return SvgPicture.asset(
-                      asset,
-                      width: constraints.maxWidth,
-                      fit: BoxFit.contain,
-                    );
-                  },
-                ),
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+            SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(top: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(
-                    child: Text(
-                      'Add a profile photo',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineMedium,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Center(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: isUploadingPhoto
-                            ? null
-                            : () => _pickImage(context),
-                        borderRadius: BorderRadius.circular(60),
-                        child: FutureBuilder<Uint8List>(
-                          future: photoFile?.readAsBytes(),
-                          builder: (context, snapshot) {
-                            final bytes = snapshot.data;
-                            final hasLocalImage =
-                                bytes != null && bytes.isNotEmpty;
-                            final hasRemoteImage =
-                                photoUrl != null && photoUrl.isNotEmpty;
-                            return Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  width: 2,
-                                  color: hasPhoto
-                                      ? Colors.transparent
-                                      : theme.colorScheme.primary,
-                                ),
-                                color: hasPhoto
-                                    ? null
-                                    : theme.colorScheme.primaryContainer,
-                                image: hasLocalImage
-                                    ? DecorationImage(
-                                        image: MemoryImage(bytes),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : hasRemoteImage
-                                        ? DecorationImage(
-                                            image: CachedNetworkImageProvider(
-                                                photoUrl),
-                                            fit: BoxFit.cover,
-                                          )
-                                        : null,
-                              ),
-                              child: hasPhoto
-                                  ? (photoUrl != null
-                                      ? Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(4),
-                                            decoration: BoxDecoration(
-                                              color: theme.colorScheme.primary,
-                                              shape: BoxShape.circle,
-                                            ),
+                  SizedBox(height: illustrationFullHeight),
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: Text(
+                            'Add a profile photo',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineMedium,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: isUploadingPhoto
+                                  ? null
+                                  : () => _pickImage(context),
+                              borderRadius: BorderRadius.circular(60),
+                              child: FutureBuilder<Uint8List>(
+                                future: photoFile?.readAsBytes(),
+                                builder: (context, snapshot) {
+                                  final bytes = snapshot.data;
+                                  final hasLocalImage =
+                                      bytes != null && bytes.isNotEmpty;
+                                  final hasRemoteImage =
+                                      photoUrl != null && photoUrl.isNotEmpty;
+                                  return Container(
+                                    width: 120,
+                                    height: 120,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        width: 2,
+                                        color: hasPhoto
+                                            ? Colors.transparent
+                                            : theme.colorScheme.primary,
+                                      ),
+                                      color: hasPhoto
+                                          ? null
+                                          : theme.colorScheme.primaryContainer,
+                                      image: hasLocalImage
+                                          ? DecorationImage(
+                                              image: MemoryImage(bytes),
+                                              fit: BoxFit.cover,
+                                            )
+                                          : hasRemoteImage
+                                              ? DecorationImage(
+                                                  image:
+                                                      CachedNetworkImageProvider(
+                                                          photoUrl),
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : null,
+                                    ),
+                                    child: hasPhoto
+                                        ? (photoUrl != null
+                                            ? Align(
+                                                alignment:
+                                                    Alignment.bottomRight,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(4),
+                                                  decoration: BoxDecoration(
+                                                    color: theme
+                                                        .colorScheme.primary,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.check,
+                                                    size: 16,
+                                                    color: theme.colorScheme
+                                                        .onPrimary,
+                                                  ),
+                                                ),
+                                              )
+                                            : null)
+                                        : Center(
                                             child: Icon(
-                                              Icons.check,
-                                              size: 16,
-                                              color: theme.colorScheme.onPrimary,
+                                              Icons.add_a_photo,
+                                              size: 36,
+                                              color: theme.colorScheme
+                                                  .onPrimaryContainer,
                                             ),
                                           ),
-                                        )
-                                      : null)
-                                  : Center(
-                                      child: Icon(
-                                        Icons.add_a_photo,
-                                        size: 36,
-                                        color:
-                                            theme.colorScheme.onPrimaryContainer,
-                                      ),
-                                    ),
-                            );
-                          },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 24),
+                        AppButton(
+                          label: 'Next',
+                          isLoading: isUploadingPhoto,
+                          onPressed: hasPhoto
+                              ? () async {
+                                  final ok = await context
+                                      .read<ProfileSetupCubit>()
+                                      .uploadSelectedPhoto();
+                                  if (ok && context.mounted) widget.onNext();
+                                }
+                              : null,
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: isUploadingPhoto
+                              ? null
+                              : () {
+                                  context
+                                      .read<ProfileSetupCubit>()
+                                      .clearPhotoAndError();
+                                  widget.onNext();
+                                },
+                          child: const Text('Skip for now'),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppButton(
-                    label: 'Next',
-                    isLoading: isUploadingPhoto,
-                    onPressed: hasPhoto
-                        ? () async {
-                            final ok = await context
-                                .read<ProfileSetupCubit>()
-                                .uploadSelectedPhoto();
-                            if (ok && context.mounted) onNext();
-                          }
-                        : null,
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: isUploadingPhoto
-                        ? null
-                        : () {
-                            context.read<ProfileSetupCubit>().clearPhotoAndError();
-                            onNext();
-                          },
-                    child: const Text('Skip for now'),
                   ),
                 ],
               ),
             ),
-            ),
+            if (illustrationHeight > 0)
+              Positioned(
+                top: 16,
+                left: 0,
+                right: 0,
+                height: illustrationHeight,
+                child: Center(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isDark =
+                          Theme.of(context).brightness == Brightness.dark;
+                      final asset = isDark
+                          ? 'assets/images/profile_page_illustration_dark.svg'
+                          : 'assets/images/profile_page_illustration_light.svg';
+                      return SizedBox(
+                        height: illustrationHeight,
+                        width: constraints.maxWidth,
+                        child: SvgPicture.asset(
+                          asset,
+                          width: constraints.maxWidth,
+                          fit: BoxFit.contain,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
           ],
         );
       },

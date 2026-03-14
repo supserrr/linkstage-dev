@@ -52,88 +52,144 @@ class _RoleSelectionView extends StatefulWidget {
 
 class _RoleSelectionViewState extends State<_RoleSelectionView> {
   UserRole? _selectedRole;
+  final _scrollController = ScrollController();
+  bool _keyboardWasVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() => setState(() {});
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<RoleSelectionCubit>().state;
     final user = widget.user;
 
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    if (_keyboardWasVisible && !keyboardVisible) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+    _keyboardWasVisible = keyboardVisible;
+
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final illustrationFullHeight = (screenHeight * 0.52).clamp(200.0, 400.0);
+    final scrollOffset = _scrollController.hasClients
+        ? _scrollController.offset
+        : 0.0;
+    final illustrationHeight =
+        (illustrationFullHeight - scrollOffset).clamp(0.0, illustrationFullHeight);
+
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              flex: 2,
-              child: Transform.translate(
-                offset: const Offset(0, -16),
-                child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
-                  final asset = isDark
-                      ? 'assets/images/role_page_illustration_dark.svg'
-                      : 'assets/images/role_page_illustration_light.svg';
-                  return SizedBox(
-                    width: constraints.maxWidth,
-                    height: constraints.maxHeight,
-                    child: SvgPicture.asset(
-                      asset,
-                      width: constraints.maxWidth,
-                      fit: BoxFit.contain,
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(top: 24, bottom: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(height: illustrationFullHeight),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                'Choose your role below',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 32),
+                              _RoleCard(
+                                title: 'Event Planner',
+                                isSelected:
+                                    _selectedRole == UserRole.eventPlanner,
+                                onTap: () => setState(
+                                    () => _selectedRole = UserRole.eventPlanner),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'or',
+                                style: Theme.of(context).textTheme.bodyLarge,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              _RoleCard(
+                                title: 'Creative Professional',
+                                isSelected: _selectedRole ==
+                                    UserRole.creativeProfessional,
+                                onTap: () => setState(
+                                  () => _selectedRole =
+                                      UserRole.creativeProfessional,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                },
-              ),
-            ),
-            ),
-            Expanded(
-              flex: 1,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Choose your role below',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    _RoleCard(
-                      title: 'Event Planner',
-                      isSelected: _selectedRole == UserRole.eventPlanner,
-                      onTap: () => setState(() => _selectedRole = UserRole.eventPlanner),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'or',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    _RoleCard(
-                      title: 'Creative Professional',
-                      isSelected: _selectedRole == UserRole.creativeProfessional,
-                      onTap: () => setState(
-                        () => _selectedRole = UserRole.creativeProfessional,
+                  ),
+                  if (illustrationHeight > 0)
+                    Positioned(
+                      top: 24,
+                      left: 0,
+                      right: 0,
+                      height: illustrationHeight,
+                      child: Center(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isDark = Theme.of(context).brightness ==
+                                Brightness.dark;
+                            final asset = isDark
+                                ? 'assets/images/role_page_illustration_dark.svg'
+                                : 'assets/images/role_page_illustration_light.svg';
+                            return SizedBox(
+                              height: illustrationHeight,
+                              width: constraints.maxWidth,
+                              child: SvgPicture.asset(
+                                asset,
+                                width: constraints.maxWidth,
+                                fit: BoxFit.contain,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
               child: AppButton(
                 label: 'Get started',
-                onPressed: _selectedRole == null || state.status == RoleSelectionStatus.loading
+                onPressed: _selectedRole == null ||
+                        state.status == RoleSelectionStatus.loading
                     ? null
                     : () => context
                         .read<RoleSelectionCubit>()

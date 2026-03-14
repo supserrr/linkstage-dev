@@ -32,6 +32,7 @@ class _LoginViewState extends State<_LoginView> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _keyboardWasVisible = false;
 
   @override
   void initState() {
@@ -62,6 +63,20 @@ class _LoginViewState extends State<_LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    if (_keyboardWasVisible && !keyboardVisible) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+    _keyboardWasVisible = keyboardVisible;
+
     final screenHeight = MediaQuery.sizeOf(context).height;
     final illustrationFullHeight = (screenHeight * 0.32).clamp(120.0, 240.0);
     final scrollOffset = _scrollController.hasClients
@@ -74,10 +89,11 @@ class _LoginViewState extends State<_LoginView> {
       body: SafeArea(
         child: Stack(
           children: [
-            SingleChildScrollView(
-              controller: _scrollController,
-              padding: const EdgeInsets.only(top: 16),
-              child: Column(
+            Positioned.fill(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                padding: const EdgeInsets.only(top: 16, bottom: 24),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(height: illustrationFullHeight),
@@ -119,7 +135,7 @@ class _LoginViewState extends State<_LoginView> {
                           ),
                           const SizedBox(height: 8),
                           Align(
-                            alignment: Alignment.centerRight,
+                            alignment: Alignment.center,
                             child: TextButton(
                               onPressed: () =>
                                   context.push(AppRoutes.passwordReset),
@@ -168,6 +184,7 @@ class _LoginViewState extends State<_LoginView> {
                   ),
                 ],
               ),
+            ),
             ),
             if (illustrationHeight > 0)
               Positioned(

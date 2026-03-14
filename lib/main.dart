@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splash_master/splash_master.dart';
 
 import 'app.dart';
 import 'core/di/injection.dart';
@@ -9,6 +10,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -35,5 +37,14 @@ void main() async {
 
   await initInjection();
 
-  runApp(const LinkStageApp());
+  runApp(
+    MaterialApp(
+      home: SplashMaster.lottie(
+        source: AssetSource('assets/lottie/Link-Stage-Animation-Light-Mode.json'),
+        lottieConfig: LottieConfig(),
+        backGroundColor: const Color(0xFFFAFAFA),
+        nextScreen: LinkStageApp(),
+      ),
+    ),
+  );
 }

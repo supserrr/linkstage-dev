@@ -23,15 +23,22 @@ class DisplayNameStep extends StatefulWidget {
 
 class _DisplayNameStepState extends State<DisplayNameStep> {
   late final TextEditingController _controller;
+  final _scrollController = ScrollController();
+  bool _keyboardWasVisible = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialValue);
+    _scrollController.addListener(_onScroll);
   }
+
+  void _onScroll() => setState(() {});
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -46,88 +53,117 @@ class _DisplayNameStepState extends State<DisplayNameStep> {
     final theme = Theme.of(context);
     final hasName = _controller.text.trim().isNotEmpty;
 
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    if (_keyboardWasVisible && !keyboardVisible) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+    _keyboardWasVisible = keyboardVisible;
+
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final illustrationFullHeight = (screenHeight * 0.44).clamp(200.0, 340.0);
+    final scrollOffset = _scrollController.hasClients
+        ? _scrollController.offset
+        : 0.0;
+    final illustrationHeight =
+        (illustrationFullHeight - scrollOffset).clamp(0.0, illustrationFullHeight);
+
     return BlocBuilder<ProfileSetupCubit, ProfileSetupState>(
       buildWhen: (a, b) => a.isLoading != b.isLoading,
       builder: (context, state) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  MediaQuery.of(context).padding.bottom -
-                  kToolbarHeight,
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(top: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: illustrationFullHeight),
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: Column(
+                            children: [
+                              Text(
+                                "What's your name?",
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.headlineMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'It will be shown on your profile and in messages.',
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        AppTextField(
+                          controller: _controller,
+                          label: 'Display name',
+                          onChanged: (v) {
+                            context.read<ProfileSetupCubit>().setDisplayName(v);
+                            setState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        AppButton(
+                          label: 'Next',
+                          onPressed:
+                              (hasName && !state.isLoading) ? _submit : null,
+                          isLoading: state.isLoading,
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: state.isLoading ? null : widget.onNext,
+                          child: const Text('Skip for now'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: 200,
-                  child: Center(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isDark =
-                            Theme.of(context).brightness == Brightness.dark;
-                        final asset = isDark
-                            ? 'assets/images/display_name_page_illustration_dark.svg'
-                            : 'assets/images/display_name_page_illustration_light.svg';
-                        return SvgPicture.asset(
+            if (illustrationHeight > 0)
+              Positioned(
+                top: 16,
+                left: 0,
+                right: 0,
+                height: illustrationHeight,
+                child: Center(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isDark =
+                          Theme.of(context).brightness == Brightness.dark;
+                      final asset = isDark
+                          ? 'assets/images/display_name_page_illustration_dark.svg'
+                          : 'assets/images/display_name_page_illustration_light.svg';
+                      return SizedBox(
+                        height: illustrationHeight,
+                        width: constraints.maxWidth,
+                        child: SvgPicture.asset(
                           asset,
                           width: constraints.maxWidth,
                           fit: BoxFit.contain,
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            "What's your name?",
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.headlineMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'It will be shown on your profile and in messages.',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyLarge,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    AppTextField(
-                      controller: _controller,
-                      label: 'Display name',
-                      onChanged: (v) {
-                        context.read<ProfileSetupCubit>().setDisplayName(v);
-                        setState(() {});
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    AppButton(
-                      label: 'Next',
-                      onPressed: (hasName && !state.isLoading) ? _submit : null,
-                      isLoading: state.isLoading,
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: state.isLoading ? null : widget.onNext,
-                      child: const Text('Skip for now'),
-                    ),
-                  ],
-                ),
-                ),
-              ],
-            ),
-          ),
+              ),
+          ],
         );
       },
     );
