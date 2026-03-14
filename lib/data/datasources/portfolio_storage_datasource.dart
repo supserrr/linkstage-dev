@@ -14,6 +14,8 @@ class PortfolioStorageDataSource {
             functionUrl ??
             '${SupabaseConfig.url}/functions/v1/portfolio-upload';
 
+  static const Duration _defaultUploadTimeout = Duration(seconds: 30);
+
   final String _functionUrl;
 
   /// Uploads a file and returns its public download URL.
@@ -42,7 +44,10 @@ class PortfolioStorageDataSource {
         ),
       );
 
-    final streamed = await request.send();
+    final streamed = await request.send().timeout(
+      _defaultUploadTimeout,
+      onTimeout: () => throw Exception('Upload timed out. Check your connection.'),
+    );
     final response = await http.Response.fromStream(streamed);
 
     if (response.statusCode != 200) {
@@ -69,6 +74,9 @@ class PortfolioStorageDataSource {
     }
 
     final bytes = await file.readAsBytes();
+    if (bytes.isEmpty) {
+      throw Exception('Could not read image file. Please try a different photo.');
+    }
     final fileName = file.name.isNotEmpty ? file.name : 'avatar.jpg';
     final request = http.MultipartRequest('POST', Uri.parse(_functionUrl))
       ..headers['Authorization'] = 'Bearer $token'
@@ -82,14 +90,25 @@ class PortfolioStorageDataSource {
         ),
       );
 
-    final streamed = await request.send();
+    final streamed = await request.send().timeout(
+      _defaultUploadTimeout,
+      onTimeout: () => throw Exception('Upload timed out. Check your connection.'),
+    );
     final response = await http.Response.fromStream(streamed);
 
     if (response.statusCode != 200) {
       final body = response.body;
-      throw Exception(
-        body.isNotEmpty ? body : 'Upload failed: ${response.statusCode}',
-      );
+      String message = 'Upload failed: ${response.statusCode}';
+      if (body.isNotEmpty) {
+        try {
+          final json = jsonDecode(body) as Map<String, dynamic>;
+          final err = json['error'] as String?;
+          if (err != null && err.isNotEmpty) message = err;
+        } catch (_) {
+          message = body.length > 200 ? '${body.substring(0, 200)}...' : body;
+        }
+      }
+      throw Exception(message);
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;

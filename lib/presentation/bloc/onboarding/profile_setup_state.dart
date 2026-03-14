@@ -8,6 +8,9 @@ class ProfileSetupState extends Equatable {
   const ProfileSetupState({
     this.username,
     this.photoFile,
+    this.photoUrl,
+    this.isUploadingPhoto = false,
+    this.photoUploadError,
     this.displayName = '',
     this.bio = '',
     this.location = '',
@@ -21,6 +24,9 @@ class ProfileSetupState extends Equatable {
   const ProfileSetupState.initial()
       : username = null,
         photoFile = null,
+        photoUrl = null,
+        isUploadingPhoto = false,
+        photoUploadError = null,
         displayName = '',
         bio = '',
         location = '',
@@ -32,6 +38,9 @@ class ProfileSetupState extends Equatable {
 
   final String? username;
   final XFile? photoFile;
+  final String? photoUrl;
+  final bool isUploadingPhoto;
+  final String? photoUploadError;
   final String displayName;
   final String bio;
   final String location;
@@ -45,6 +54,11 @@ class ProfileSetupState extends Equatable {
     String? username,
     XFile? photoFile,
     bool clearPhotoFile = false,
+    String? photoUrl,
+    bool clearPhotoUrl = false,
+    bool? isUploadingPhoto,
+    String? photoUploadError,
+    bool clearPhotoUploadError = false,
     String? displayName,
     String? bio,
     String? location,
@@ -57,6 +71,9 @@ class ProfileSetupState extends Equatable {
     return ProfileSetupState(
       username: username ?? this.username,
       photoFile: clearPhotoFile ? null : (photoFile ?? this.photoFile),
+      photoUrl: clearPhotoUrl ? null : (photoUrl ?? this.photoUrl),
+      isUploadingPhoto: isUploadingPhoto ?? this.isUploadingPhoto,
+      photoUploadError: clearPhotoUploadError ? null : (photoUploadError ?? this.photoUploadError),
       displayName: displayName ?? this.displayName,
       bio: bio ?? this.bio,
       location: location ?? this.location,
@@ -72,6 +89,9 @@ class ProfileSetupState extends Equatable {
   List<Object?> get props => [
         username,
         photoFile,
+        photoUrl,
+        isUploadingPhoto,
+        photoUploadError,
         displayName,
         bio,
         location,

@@ -17,6 +17,7 @@ class AuthSignIllustration extends StatelessWidget {
         return SvgPicture.asset(
           asset,
           width: constraints.maxWidth,
+          height: constraints.maxHeight,
           fit: BoxFit.contain,
         );
       },

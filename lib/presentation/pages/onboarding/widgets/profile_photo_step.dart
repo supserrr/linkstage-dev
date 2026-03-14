@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -34,9 +35,20 @@ class ProfilePhotoStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocBuilder<ProfileSetupCubit, ProfileSetupState>(
+    return BlocConsumer<ProfileSetupCubit, ProfileSetupState>(
+      listenWhen: (a, b) => a.photoUploadError != b.photoUploadError,
+      listener: (context, state) {
+        if (state.photoUploadError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.photoUploadError!)),
+          );
+        }
+      },
       builder: (context, state) {
         final photoFile = state.photoFile;
+        final photoUrl = state.photoUrl;
+        final isUploadingPhoto = state.isUploadingPhoto;
+        final hasPhoto = photoFile != null || photoUrl != null;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -59,8 +71,9 @@ class ProfilePhotoStep extends StatelessWidget {
                 ),
               ),
             ),
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -76,12 +89,18 @@ class ProfilePhotoStep extends StatelessWidget {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => _pickImage(context),
+                        onTap: isUploadingPhoto
+                            ? null
+                            : () => _pickImage(context),
                         borderRadius: BorderRadius.circular(60),
                         child: FutureBuilder<Uint8List>(
                           future: photoFile?.readAsBytes(),
                           builder: (context, snapshot) {
                             final bytes = snapshot.data;
+                            final hasLocalImage =
+                                bytes != null && bytes.isNotEmpty;
+                            final hasRemoteImage =
+                                photoUrl != null && photoUrl.isNotEmpty;
                             return Container(
                               width: 120,
                               height: 120,
@@ -89,30 +108,52 @@ class ProfilePhotoStep extends StatelessWidget {
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   width: 2,
-                                  color: photoFile != null
+                                  color: hasPhoto
                                       ? Colors.transparent
                                       : theme.colorScheme.primary,
                                 ),
-                                color: photoFile != null
+                                color: hasPhoto
                                     ? null
                                     : theme.colorScheme.primaryContainer,
-                                image: bytes != null && bytes.isNotEmpty
+                                image: hasLocalImage
                                     ? DecorationImage(
                                         image: MemoryImage(bytes),
                                         fit: BoxFit.cover,
                                       )
-                                    : null,
+                                    : hasRemoteImage
+                                        ? DecorationImage(
+                                            image: CachedNetworkImageProvider(
+                                                photoUrl),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
                               ),
-                              child: photoFile == null
-                                  ? Center(
+                              child: hasPhoto
+                                  ? (photoUrl != null
+                                      ? Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: theme.colorScheme.primary,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.check,
+                                              size: 16,
+                                              color: theme.colorScheme.onPrimary,
+                                            ),
+                                          ),
+                                        )
+                                      : null)
+                                  : Center(
                                       child: Icon(
                                         Icons.add_a_photo,
                                         size: 36,
                                         color:
                                             theme.colorScheme.onPrimaryContainer,
                                       ),
-                                    )
-                                  : null,
+                                    ),
                             );
                           },
                         ),
@@ -122,15 +163,29 @@ class ProfilePhotoStep extends StatelessWidget {
                   const SizedBox(height: 24),
                   AppButton(
                     label: 'Next',
-                    onPressed: photoFile != null ? onNext : null,
+                    isLoading: isUploadingPhoto,
+                    onPressed: hasPhoto
+                        ? () async {
+                            final ok = await context
+                                .read<ProfileSetupCubit>()
+                                .uploadSelectedPhoto();
+                            if (ok && context.mounted) onNext();
+                          }
+                        : null,
                   ),
                   const SizedBox(height: 8),
                   TextButton(
-                    onPressed: onNext,
+                    onPressed: isUploadingPhoto
+                        ? null
+                        : () {
+                            context.read<ProfileSetupCubit>().clearPhotoAndError();
+                            onNext();
+                          },
                     child: const Text('Skip for now'),
                   ),
                 ],
               ),
+            ),
             ),
           ],
         );

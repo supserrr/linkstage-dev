@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../bloc/onboarding/profile_setup_cubit.dart';
+import '../../../bloc/onboarding/profile_setup_state.dart';
 import '../../../widgets/atoms/app_button.dart';
 import '../../../widgets/atoms/app_text_field.dart';
 
@@ -45,72 +46,90 @@ class _DisplayNameStepState extends State<DisplayNameStep> {
     final theme = Theme.of(context);
     final hasName = _controller.text.trim().isNotEmpty;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Center(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final isDark =
-                    Theme.of(context).brightness == Brightness.dark;
-                final asset = isDark
-                    ? 'assets/images/display_name_page_illustration_dark.svg'
-                    : 'assets/images/display_name_page_illustration_light.svg';
-                return SvgPicture.asset(
-                  asset,
-                  width: constraints.maxWidth,
-                  fit: BoxFit.contain,
-                );
-              },
+    return BlocBuilder<ProfileSetupCubit, ProfileSetupState>(
+      buildWhen: (a, b) => a.isLoading != b.isLoading,
+      builder: (context, state) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom -
+                  kToolbarHeight,
             ),
-          ),
-        ),
-        SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 200,
+                  child: Center(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isDark =
+                            Theme.of(context).brightness == Brightness.dark;
+                        final asset = isDark
+                            ? 'assets/images/display_name_page_illustration_dark.svg'
+                            : 'assets/images/display_name_page_illustration_light.svg';
+                        return SvgPicture.asset(
+                          asset,
+                          width: constraints.maxWidth,
+                          fit: BoxFit.contain,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      "What's your name?",
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineMedium,
+                    Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            "What's your name?",
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'It will be shown on your profile and in messages.',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    AppTextField(
+                      controller: _controller,
+                      label: 'Display name',
+                      onChanged: (v) {
+                        context.read<ProfileSetupCubit>().setDisplayName(v);
+                        setState(() {});
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    AppButton(
+                      label: 'Next',
+                      onPressed: (hasName && !state.isLoading) ? _submit : null,
+                      isLoading: state.isLoading,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'It will be shown on your profile and in messages.',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyLarge,
+                    TextButton(
+                      onPressed: state.isLoading ? null : widget.onNext,
+                      child: const Text('Skip for now'),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 24),
-              AppTextField(
-                controller: _controller,
-                label: 'Display name',
-                onChanged: (v) {
-                context.read<ProfileSetupCubit>().setDisplayName(v);
-                  setState(() {});
-                },
-              ),
-              const SizedBox(height: 24),
-              AppButton(
-                label: 'Next',
-                onPressed: hasName ? _submit : null,
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: widget.onNext,
-                child: const Text('Skip for now'),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

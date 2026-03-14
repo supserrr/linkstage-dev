@@ -51,6 +51,9 @@ class AppRoutes {
   static const String plannerProfile = '/profile/planner-profile';
   static const String profileReviews = '/profile/view/reviews';
   static const String myEvents = '/my-events';
+
+  /// Path for viewing another creative's public profile.
+  static String creativeProfileView(String userId) => '/profile/creative/$userId';
 }
 
 /// Application router configuration.
@@ -281,6 +284,15 @@ class AppRouter {
                       name: 'plannerProfile',
                       builder: (context, state) =>
                           const PlannerProfileEditPage(),
+                    ),
+                    GoRoute(
+                      path: 'creative/:userId',
+                      name: 'creativeProfileView',
+                      builder: (context, state) {
+                        final userId =
+                            state.pathParameters['userId'] ?? '';
+                        return ViewProfilePage(profileUserId: userId);
+                      },
                     ),
                   ],
                 ),

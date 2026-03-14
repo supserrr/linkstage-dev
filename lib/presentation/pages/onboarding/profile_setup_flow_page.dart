@@ -11,6 +11,7 @@ import '../../bloc/onboarding/profile_setup_draft_storage.dart';
 import '../../bloc/onboarding/profile_setup_state.dart';
 import '../../../core/router/app_router.dart';
 import '../../../domain/entities/user_entity.dart';
+import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/profile_repository.dart';
 import '../../../domain/repositories/user_repository.dart';
 import '../../../domain/usecases/user/upsert_user_usecase.dart';
@@ -91,6 +92,7 @@ class _ProfileSetupFlowPageState extends State<ProfileSetupFlowPage> {
         sl<ProfileRepository>(),
         sl<UserRepository>(),
         sl<PortfolioStorageDataSource>(),
+        sl<AuthRepository>(),
         initialDraft: _initialDraft,
       ),
       child: BlocConsumer<ProfileSetupCubit, ProfileSetupState>(

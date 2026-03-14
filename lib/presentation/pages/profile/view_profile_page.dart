@@ -21,11 +21,32 @@ import '../../bloc/planner_profile/planner_profile_state.dart';
 import '../../widgets/molecules/vendor_card.dart';
 
 /// Public profile view - how your profile looks to others. Edit button opens edit page.
+/// When [profileUserId] is set, shows that creative's profile in read-only mode.
 class ViewProfilePage extends StatelessWidget {
-  const ViewProfilePage({super.key});
+  const ViewProfilePage({super.key, this.profileUserId});
+
+  /// When non-empty, view this user's creative profile (read-only). Otherwise view own profile.
+  final String? profileUserId;
 
   @override
   Widget build(BuildContext context) {
+    final isViewingOther =
+        profileUserId != null && profileUserId!.isNotEmpty;
+    if (isViewingOther) {
+      return BlocProvider(
+        create: (_) => CreativeProfileCubit(
+          sl<ProfileRepository>(),
+          sl<ReviewRepository>(),
+          sl<BookingRepository>(),
+          profileUserId!,
+        ),
+        child: const _ViewProfileScaffold(
+          showEditButton: false,
+          child: _CreativeProfileView(),
+        ),
+      );
+    }
+
     final user = sl<AuthRedirectNotifier>().user;
     if (user == null) {
       return const Scaffold(
@@ -44,6 +65,7 @@ class ViewProfilePage extends StatelessWidget {
         child: Builder(
           builder: (ctx) => _ViewProfileScaffold(
             editRoute: AppRoutes.creativeProfile,
+            showEditButton: true,
             onReturnFromEdit: () =>
                 ctx.read<CreativeProfileCubit>().refresh(),
             child: const _CreativeProfileView(),
@@ -63,6 +85,7 @@ class ViewProfilePage extends StatelessWidget {
         child: Builder(
           builder: (ctx) => _ViewProfileScaffold(
             editRoute: AppRoutes.plannerProfile,
+            showEditButton: true,
             onReturnFromEdit: () =>
                 ctx.read<PlannerProfileCubit>().refresh(),
             child: const _PlannerProfileView(),
@@ -79,12 +102,14 @@ class ViewProfilePage extends StatelessWidget {
 
 class _ViewProfileScaffold extends StatelessWidget {
   const _ViewProfileScaffold({
-    required this.editRoute,
     required this.child,
+    this.editRoute,
+    this.showEditButton = true,
     this.onReturnFromEdit,
   });
 
-  final String editRoute;
+  final String? editRoute;
+  final bool showEditButton;
   final Widget child;
   final VoidCallback? onReturnFromEdit;
 
@@ -94,15 +119,16 @@ class _ViewProfileScaffold extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () async {
-              await context.push(editRoute);
-              if (context.mounted) {
-                onReturnFromEdit?.call();
-              }
-            },
-          ),
+          if (showEditButton && editRoute != null)
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () async {
+                await context.push(editRoute!);
+                if (context.mounted) {
+                  onReturnFromEdit?.call();
+                }
+              },
+            ),
         ],
       ),
       body: child,
@@ -125,13 +151,22 @@ class _CreativeProfileView extends StatelessWidget {
           return const Center(child: Text('Profile not found'));
         }
         final authNotifier = sl<AuthRedirectNotifier>();
+        final isViewingOther =
+            authNotifier.user?.id != profile.userId;
+        final photoUrl = isViewingOther
+            ? (profile.portfolioUrls.isNotEmpty
+                ? profile.portfolioUrls.first
+                : null)
+            : authNotifier.user?.photoUrl;
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
             ListenableBuilder(
               listenable: authNotifier,
               builder: (context, _) => _ProfilePhoto(
-                photoUrl: authNotifier.user?.photoUrl,
+                photoUrl: isViewingOther
+                    ? photoUrl
+                    : authNotifier.user?.photoUrl,
               ),
             ),
             const SizedBox(height: 16),

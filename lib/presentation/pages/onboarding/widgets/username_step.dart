@@ -92,8 +92,9 @@ class _UsernameStepState extends State<UsernameStep> {
               ),
             ),
           ),
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -194,6 +195,7 @@ class _UsernameStepState extends State<UsernameStep> {
                 ),
               ],
             ),
+          ),
           ),
         ],
       ),

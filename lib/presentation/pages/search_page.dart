@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/router/app_router.dart';
 import '../bloc/profiles/profiles_bloc.dart';
 import '../bloc/profiles/profiles_state.dart';
 import '../widgets/molecules/vendor_card.dart';
@@ -132,9 +134,9 @@ class _SearchViewState extends State<_SearchView> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: VendorCard(
                   profile: profile,
-                  onTap: () {
-                    // TODO: navigate to profile detail
-                  },
+                  onTap: () => context.push(
+                    AppRoutes.creativeProfileView(profile.userId),
+                  ),
                 ),
               );
             },

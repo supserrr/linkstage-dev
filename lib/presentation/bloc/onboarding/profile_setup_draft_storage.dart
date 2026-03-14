@@ -24,6 +24,7 @@ class ProfileSetupDraftStorage {
     final map = <String, dynamic>{
       'currentStep': currentStep,
       'username': state.username,
+      'photoUrl': state.photoUrl,
       'displayName': state.displayName,
       'bio': state.bio,
       'location': state.location,
@@ -43,6 +44,7 @@ class ProfileSetupDraftStorage {
       final categoryKey = map['category'] as String?;
       final state = ProfileSetupState(
         username: map['username'] as String?,
+        photoUrl: map['photoUrl'] as String?,
         displayName: map['displayName'] as String? ?? '',
         bio: map['bio'] as String? ?? '',
         location: map['location'] as String? ?? '',
