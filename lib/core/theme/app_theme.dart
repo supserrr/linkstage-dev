@@ -49,8 +49,14 @@ class AppTheme {
         filled: true,
       ),
       cardTheme: CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: lightScheme.outlineVariant.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 64,
@@ -60,14 +66,15 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
+    final darkScheme = ColorScheme.fromSeed(
+      seedColor: const Color(0xFF66BB6A),
+      brightness: Brightness.dark,
+      primary: const Color(0xFF66BB6A),
+      secondary: const Color(0xFF81C784),
+    );
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF66BB6A),
-        brightness: Brightness.dark,
-        primary: const Color(0xFF66BB6A),
-        secondary: const Color(0xFF81C784),
-      ),
+      colorScheme: darkScheme,
       textTheme: _textTheme,
       appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       filledButtonTheme: FilledButtonThemeData(
@@ -90,8 +97,14 @@ class AppTheme {
         filled: true,
       ),
       cardTheme: CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: darkScheme.outlineVariant.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 64,

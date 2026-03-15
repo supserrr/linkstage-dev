@@ -7,7 +7,7 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../domain/entities/user_entity.dart';
 
 /// Shell with bottom navigation for main app tabs.
-/// Tab labels differ by role: creatives see "My Gigs", planners see "My Events".
+/// Tab labels differ by role: creatives see "Gigs", planners see "Events".
 class BottomNavShell extends StatelessWidget {
   const BottomNavShell({super.key, required this.navigationShell});
 
@@ -22,7 +22,7 @@ class BottomNavShell extends StatelessWidget {
       listenable: sl<AuthRedirectNotifier>(),
       builder: (context, _) {
         final role = sl<AuthRedirectNotifier>().user?.role;
-        final activityLabel = role == UserRole.eventPlanner ? 'My Events' : 'My Gigs';
+        final activityLabel = role == UserRole.eventPlanner ? 'Events' : 'Gigs';
         return Scaffold(
           body: navigationShell,
           bottomNavigationBar: Container(
@@ -46,7 +46,7 @@ class BottomNavShell extends StatelessWidget {
                   gap: 8,
                   activeColor: colorScheme.onPrimaryContainer,
                   iconSize: 24,
-                  tabBackgroundColor: colorScheme.primaryContainer,
+                  tabBackgroundColor: colorScheme.primaryContainer.withOpacity(0.6),
                   color: colorScheme.onSurfaceVariant,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   duration: const Duration(milliseconds: 300),
@@ -62,7 +62,7 @@ class BottomNavShell extends StatelessWidget {
                     ),
                     GButton(
                       icon: Icons.message_outlined,
-                      text: 'Messages',
+                      text: 'Chat',
                     ),
                     GButton(
                       icon: Icons.event_outlined,

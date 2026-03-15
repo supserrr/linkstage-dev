@@ -37,4 +37,83 @@ class EventRemoteDataSource {
         .map((d) => EventModel.fromFirestore(d).toEntity())
         .toList();
   }
+
+  /// Create a new event.
+  Future<EventEntity> createEvent({
+    required String plannerId,
+    required String title,
+    DateTime? date,
+    String location = '',
+    String description = '',
+    EventStatus status = EventStatus.draft,
+    List<String> imageUrls = const [],
+  }) async {
+    final model = EventModel(
+      id: '',
+      plannerId: plannerId,
+      title: title,
+      date: date,
+      location: location,
+      description: description,
+      status: status,
+      imageUrls: imageUrls,
+    );
+    final ref = await _firestore
+        .collection(_eventsCollection)
+        .add(model.toFirestore());
+    return EventEntity(
+      id: ref.id,
+      plannerId: plannerId,
+      title: title,
+      date: date,
+      location: location,
+      description: description,
+      status: status,
+      imageUrls: imageUrls,
+    );
+  }
+
+  /// Update an existing event.
+  Future<EventEntity> updateEvent(EventEntity event) async {
+    final model = EventModel(
+      id: event.id,
+      plannerId: event.plannerId,
+      title: event.title,
+      date: event.date,
+      location: event.location,
+      description: event.description,
+      status: event.status,
+      imageUrls: event.imageUrls,
+    );
+    await _firestore
+        .collection(_eventsCollection)
+        .doc(event.id)
+        .update(model.toFirestore());
+    return event;
+  }
+
+  /// Update only the status of an event.
+  Future<void> updateEventStatus(String eventId, EventStatus status) async {
+    await _firestore.collection(_eventsCollection).doc(eventId).update({
+      'status': _statusKey(status),
+    });
+  }
+
+  /// Delete an event.
+  Future<void> deleteEvent(String eventId) async {
+    await _firestore.collection(_eventsCollection).doc(eventId).delete();
+  }
+
+  String _statusKey(EventStatus s) {
+    switch (s) {
+      case EventStatus.draft:
+        return 'draft';
+      case EventStatus.open:
+        return 'open';
+      case EventStatus.booked:
+        return 'booked';
+      case EventStatus.completed:
+        return 'completed';
+    }
+  }
 }

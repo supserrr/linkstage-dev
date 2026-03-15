@@ -259,7 +259,19 @@ class _EventCard extends StatelessWidget {
         : '—';
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.event),
+        leading: event.imageUrls.isNotEmpty
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: CachedNetworkImage(
+                    imageUrl: event.imageUrls.first,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
+            : const Icon(Icons.event),
         title: Text(event.title),
         subtitle: Text('${event.location.isNotEmpty ? event.location : '—'} · $dateStr'),
         trailing: Chip(

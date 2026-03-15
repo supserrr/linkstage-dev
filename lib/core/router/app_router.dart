@@ -6,6 +6,7 @@ import 'package:linkstage/core/di/injection.dart';
 import 'package:linkstage/core/router/auth_redirect.dart';
 import 'package:linkstage/domain/repositories/auth_repository.dart';
 import 'package:linkstage/presentation/bloc/onboarding/onboarding_cubit.dart';
+import '../../domain/entities/event_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../presentation/pages/auth/login_page.dart';
 import '../../presentation/pages/auth/password_reset_page.dart';
@@ -25,6 +26,7 @@ import '../../presentation/pages/onboarding/profile_setup_flow_page.dart';
 import '../../presentation/pages/onboarding/onboarding_intro_page.dart';
 import '../../presentation/pages/role_selection_page.dart';
 import '../../presentation/pages/search_page.dart';
+import '../../presentation/pages/create_event_page.dart';
 import '../../presentation/widgets/organisms/bottom_nav_shell.dart';
 
 /// App route names.
@@ -51,6 +53,8 @@ class AppRoutes {
   static const String plannerProfile = '/profile/planner-profile';
   static const String profileReviews = '/profile/view/reviews';
   static const String myEvents = '/my-events';
+  static const String createEvent = '/bookings/create-event';
+  static const String editEvent = '/bookings/edit-event';
 
   /// Path for viewing another creative's public profile.
   static String creativeProfileView(String userId) => '/profile/creative/$userId';
@@ -90,6 +94,7 @@ class AppRouter {
             state.matchedLocation == AppRoutes.search ||
             state.matchedLocation == AppRoutes.messages ||
             state.matchedLocation == AppRoutes.bookings ||
+            state.matchedLocation.startsWith('/bookings') ||
             state.matchedLocation == AppRoutes.myEvents ||
             state.matchedLocation.startsWith(AppRoutes.profile);
 
@@ -244,6 +249,22 @@ class AppRouter {
                   name: 'bookings',
                   pageBuilder: (context, state) =>
                       const NoTransitionPage(child: ActivityTabPage()),
+                  routes: [
+                    GoRoute(
+                      path: 'create-event',
+                      name: 'createEvent',
+                      builder: (context, state) =>
+                          const CreateEventPage(),
+                    ),
+                    GoRoute(
+                      path: 'edit-event',
+                      name: 'editEvent',
+                      builder: (context, state) {
+                        final event = state.extra;
+                        return CreateEventPage(event: event is EventEntity ? event : null);
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

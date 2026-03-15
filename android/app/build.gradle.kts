@@ -46,7 +46,7 @@ flutter {
     source = "../.."
 }
 
-// Show detailed deprecation warnings (Java)
 tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("-Xlint:deprecation")
+    options.compilerArgs.add("-Xlint:-options")
+    options.compilerArgs.add("-Xlint:-deprecation")
 }

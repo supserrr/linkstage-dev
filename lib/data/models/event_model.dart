@@ -12,6 +12,7 @@ class EventModel {
     this.location = '',
     this.description = '',
     this.status = EventStatus.draft,
+    this.imageUrls = const [],
   });
 
   factory EventModel.fromFirestore(
@@ -19,6 +20,14 @@ class EventModel {
   ) {
     final data = doc.data() ?? {};
     final ts = data['date'] as Timestamp?;
+    final imageUrlsRaw = data['imageUrls'];
+    final imageUrls = imageUrlsRaw is List
+        ? (imageUrlsRaw)
+            .map((e) => e is String ? e : e.toString())
+            .where((s) => s.isNotEmpty)
+            .toList()
+        : <String>[];
+
     return EventModel(
       id: doc.id,
       plannerId: data['plannerId'] as String? ?? '',
@@ -28,6 +37,7 @@ class EventModel {
       description: data['description'] as String? ?? '',
       status: EventEntity.statusFromKey(data['status'] as String?) ??
           EventStatus.draft,
+      imageUrls: imageUrls,
     );
   }
 
@@ -38,6 +48,7 @@ class EventModel {
   final String location;
   final String description;
   final EventStatus status;
+  final List<String> imageUrls;
 
   Map<String, dynamic> toFirestore() {
     return {
@@ -47,6 +58,7 @@ class EventModel {
       'location': location,
       'description': description,
       'status': _statusKey,
+      'imageUrls': imageUrls,
     };
   }
 
@@ -72,6 +84,7 @@ class EventModel {
       location: location,
       description: description,
       status: status,
+      imageUrls: imageUrls,
     );
   }
 }

@@ -19,4 +19,22 @@ class BookingRepositoryImpl implements BookingRepository {
     String plannerId,
   ) =>
       _remote.getCompletedBookingsByPlannerId(plannerId);
+
+  @override
+  Future<List<BookingEntity>> getPendingBookingsByPlannerId(
+    String plannerId,
+  ) =>
+      _remote.getPendingBookingsByPlannerId(plannerId);
+
+  @override
+  Stream<List<BookingEntity>> watchPendingBookingsByPlannerId(
+    String plannerId,
+  ) =>
+      _remote.watchPendingBookingsByPlannerId(plannerId);
+
+  @override
+  Stream<List<BookingEntity>> watchCompletedBookingsByCreativeId(
+    String creativeId,
+  ) =>
+      _remote.watchCompletedBookingsByCreativeId(creativeId);
 }

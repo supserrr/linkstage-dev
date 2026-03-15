@@ -13,6 +13,7 @@ class EventEntity extends Equatable {
     this.location = '',
     this.description = '',
     this.status = EventStatus.draft,
+    this.imageUrls = const [],
   });
 
   final String id;
@@ -22,6 +23,7 @@ class EventEntity extends Equatable {
   final String location;
   final String description;
   final EventStatus status;
+  final List<String> imageUrls;
 
   static EventStatus? statusFromKey(String? key) {
     switch (key) {
@@ -52,5 +54,5 @@ class EventEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, plannerId, title, date, location, description, status];
+  List<Object?> get props => [id, plannerId, title, date, location, description, status, imageUrls];
 }

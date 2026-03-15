@@ -125,6 +125,7 @@ erDiagram
 | location  | string   | Event location                           |
 | description | string | Event description                        |
 | status    | string   | `draft`, `open`, `booked`, `completed`   |
+| imageUrls | array    | Event image URLs (hosted on Supabase Storage) |
 
 ### bookings
 
@@ -137,6 +138,8 @@ erDiagram
 | status     | string   | `pending`, `accepted`, `declined`, `completed` |
 | agreedPrice| number   | Agreed price in RWF                      |
 | createdAt  | timestamp| Creation time                            |
+
+Planner dashboard uses `getPendingBookingsByPlannerId(plannerId)` (query: `plannerId` + `status == 'pending'`, orderBy `createdAt` desc) for applicants count, recent activity, and per-event "+N New" counts.
 
 ### conversations
 
@@ -188,5 +191,6 @@ Defined in `firestore.indexes.json`:
 - events: plannerId (ASC) + date (DESC)
 - bookings: creativeId (ASC) + status (ASC)
 - bookings: plannerId (ASC) + status (ASC)
+- bookings: plannerId (ASC) + status (ASC) + createdAt (DESC) — for planner dashboard (pending bookings by planner, ordered by creation time)
 - profiles: category (ASC) + location (ASC)
 - profiles: category (ASC) + rating (DESC)

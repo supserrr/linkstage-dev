@@ -6,7 +6,7 @@ import '../../domain/entities/user_entity.dart';
 import 'bookings_page.dart';
 import 'my_events_page.dart';
 
-/// Tab that shows My Gigs (bookings) for creatives or My Events for planners.
+/// Tab that shows Gigs (bookings) for creatives or Events for planners.
 class ActivityTabPage extends StatelessWidget {
   const ActivityTabPage({super.key});
 
