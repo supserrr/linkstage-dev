@@ -399,16 +399,11 @@ class _StageCard extends StatelessWidget {
   final int newCount;
 
   String _statusLabel(EventStatus s) {
-    switch (s) {
-      case EventStatus.draft:
-        return 'Draft';
-      case EventStatus.open:
-        return 'Active';
-      case EventStatus.booked:
-        return 'Booked';
-      case EventStatus.completed:
-        return 'Completed';
-    }
+    return s == EventStatus.open ? 'Open' : 'Closed';
+  }
+
+  bool _isPublished(EventStatus s) {
+    return s != EventStatus.draft;
   }
 
   String _daysLeftText(DateTime? date) {
@@ -486,6 +481,20 @@ class _StageCard extends StatelessWidget {
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _isPublished(event.status)
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),

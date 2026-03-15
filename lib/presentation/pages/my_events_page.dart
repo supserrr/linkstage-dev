@@ -99,52 +99,6 @@ class _MyEventsView extends StatelessWidget {
               return _EventCard(
                 event: event,
                 applicantCount: state.pendingCountByEventId[event.id] ?? 0,
-                onEdit: () async {
-                  final updated = await context.push<bool?>(
-                    AppRoutes.editEvent,
-                    extra: event,
-                  );
-                  if (updated == true && context.mounted) {
-                    context.read<MyEventsCubit>().load();
-                  }
-                },
-                onTogglePublish: () {
-                  final cubit = context.read<MyEventsCubit>();
-                  final newStatus = event.status == EventStatus.open
-                      ? EventStatus.draft
-                      : EventStatus.open;
-                  if (event.status == EventStatus.draft ||
-                      event.status == EventStatus.open) {
-                    cubit.updateStatus(event.id, newStatus);
-                  }
-                },
-                onDelete: () async {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Delete event?'),
-                      content: Text(
-                        'Are you sure you want to delete "${event.title}"?',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(false),
-                          child: const Text('Cancel'),
-                        ),
-                        FilledButton(
-                          onPressed: () => Navigator.of(ctx).pop(true),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Theme.of(ctx).colorScheme.error,
-                          ),
-                          child: const Text('Delete'),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (confirmed == true && context.mounted) {
-                    context.read<MyEventsCubit>().delete(event.id);
-                  }
-                },
               );
             },
           );
@@ -158,28 +112,17 @@ class _EventCard extends StatelessWidget {
   const _EventCard({
     required this.event,
     required this.applicantCount,
-    required this.onEdit,
-    required this.onTogglePublish,
-    required this.onDelete,
   });
 
   final EventEntity event;
   final int applicantCount;
-  final VoidCallback onEdit;
-  final VoidCallback onTogglePublish;
-  final VoidCallback onDelete;
 
   String _statusLabel(EventStatus s) {
-    switch (s) {
-      case EventStatus.draft:
-        return 'Draft';
-      case EventStatus.open:
-        return 'Open';
-      case EventStatus.booked:
-        return 'Booked';
-      case EventStatus.completed:
-        return 'Completed';
-    }
+    return s == EventStatus.open ? 'Open' : 'Closed';
+  }
+
+  bool _isPublished(EventStatus s) {
+    return s != EventStatus.draft;
   }
 
   String _daysLeftText(DateTime? date) {
@@ -198,28 +141,21 @@ class _EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dateStr = event.date != null
-        ? '${event.date!.day}/${event.date!.month}/${event.date!.year}'
+        ? '${event.date!.month}/${event.date!.day}/${event.date!.year}'
         : '—';
     final location =
         event.location.isNotEmpty ? event.location : '—';
     final daysLeft = _daysLeftText(event.date);
-    final canToggle = event.status == EventStatus.draft ||
-        event.status == EventStatus.open;
-
-    final circleButtonStyle = IconButton.styleFrom(
-      backgroundColor: theme.colorScheme.surfaceContainerHighest,
-      shape: const CircleBorder(),
-      padding: const EdgeInsets.all(8),
-      minimumSize: const Size(36, 36),
-    );
 
     return Card(
       clipBehavior: Clip.antiAlias,
+      margin: EdgeInsets.zero,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Stack(
+            clipBehavior: Clip.antiAlias,
             children: [
               Container(
                 height: 110,
@@ -249,22 +185,40 @@ class _EventCard extends StatelessWidget {
                       ),
               ),
               Positioned(
-                top: 8,
-                left: 8,
-                child: Chip(
-                  label: Text(
-                    _statusLabel(event.status),
-                    style: theme.textTheme.labelSmall,
+                top: 6,
+                left: 6,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface.withValues(alpha: 0.95),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  child: Text(
+                    _statusLabel(event.status),
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _isPublished(event.status)
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -277,7 +231,7 @@ class _EventCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 2),
                 Row(
                   children: [
                     Icon(
@@ -292,7 +246,6 @@ class _EventCard extends StatelessWidget {
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
-                          fontSize: 12,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -300,7 +253,7 @@ class _EventCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Row(
                   children: [
                     Icon(
@@ -322,7 +275,7 @@ class _EventCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Row(
                   children: [
                     Icon(
@@ -339,45 +292,6 @@ class _EventCard extends StatelessWidget {
                         color: theme.colorScheme.onSurfaceVariant,
                         fontSize: 11,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined, size: 18),
-                      onPressed: onEdit,
-                      style: circleButtonStyle,
-                      tooltip: 'Edit',
-                    ),
-                    if (canToggle) ...[
-                      const SizedBox(width: 4),
-                      IconButton(
-                        icon: Icon(
-                          event.status == EventStatus.open
-                              ? Icons.visibility_off_outlined
-                              : Icons.publish_outlined,
-                          size: 18,
-                        ),
-                        onPressed: onTogglePublish,
-                        style: circleButtonStyle,
-                        tooltip: event.status == EventStatus.open
-                            ? 'Unpublish'
-                            : 'Publish',
-                      ),
-                    ],
-                    const SizedBox(width: 4),
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        size: 18,
-                        color: theme.colorScheme.error,
-                      ),
-                      onPressed: onDelete,
-                      style: circleButtonStyle,
-                      tooltip: 'Delete',
                     ),
                   ],
                 ),
